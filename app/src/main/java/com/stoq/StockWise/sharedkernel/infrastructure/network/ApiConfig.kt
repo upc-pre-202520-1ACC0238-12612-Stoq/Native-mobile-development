@@ -15,14 +15,14 @@ object ApiConfig {
 
     // Endpoints by context
     object IdentityAccess {
-        private const val BASE = "$API_VERSION/auth"
-        const val LOGIN = "$BASE/login"
-        const val REGISTER = "$BASE/register"
-        const val REFRESH_TOKEN = "$BASE/refresh"
+        private const val BASE = "$API_VERSION/v1/authentication"
+        const val LOGIN = "$BASE/sign-in"
+        const val REGISTER = "$BASE/sign-up"
+        const val REFRESH_TOKEN = "$BASE/refresh-token"
         const val PROFILE = "$BASE/profile"
     }
 
-    object Inventory {
+    object LegacyInventory {
         private const val BASE = "$API_VERSION"
         const val PRODUCTS = "$BASE/products"
         const val PRODUCT_DETAIL = "$BASE/products/{id}"
@@ -30,11 +30,36 @@ object ApiConfig {
         const val INVENTORY_MOVEMENTS = "$API_VERSION/inventory/movements"
     }
 
-    object Sales {
-        private const val BASE = "$API_VERSION"
-        const val ORDERS = "$BASE/orders"
-        const val ORDER_DETAIL = "$BASE/orders/{id}"
-        const val CREATE_ORDER = "$BASE/orders"
-        const val UPDATE_ORDER_STATUS = "$BASE/orders/{id}/status"
+    object ProductCatalog {
+        private const val BASE = "$API_VERSION/v1/products"
+        const val GET_ALL = BASE
+        const val GET_BY_ID = "$BASE/{id}"
+        const val CREATE = BASE
+        const val UPDATE = "$BASE/{id}"
+        const val DELETE = "$BASE/{id}"
+    }
+
+    object Inventory {
+        private const val BASE = "$API_VERSION/v1/inventory"
+        const val GET_ALL = BASE
+        const val GET_BY_PRODUCT = "$BASE/product/{productId}"
+        const val UPDATE_STOCK = "$BASE/update"
+        const val GET_MOVEMENTS = "$BASE/movements"
+    }
+
+    object Alerts {
+        private const val BASE = "$API_VERSION/v1/alerts"
+        const val GET_ALL = BASE
+        const val GET_ACTIVE = "$BASE/active"
+        const val CREATE = BASE
+        const val MARK_RESOLVED = "$BASE/{id}/resolve"
+    }
+
+    object AuditReport {
+        private const val BASE = "$API_VERSION/v1/reports"
+        const val GET_STOCK_REPORT = "$BASE/stock"
+        const val GET_MOVEMENT_REPORT = "$BASE/movements"
+        const val GET_ALERT_REPORT = "$BASE/alerts"
+        const val GENERATE_REPORT = "$BASE/generate"
     }
 }

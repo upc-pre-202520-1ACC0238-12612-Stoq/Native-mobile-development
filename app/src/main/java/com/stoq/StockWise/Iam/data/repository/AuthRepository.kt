@@ -19,16 +19,22 @@ interface AuthRepository {
 class AuthRepositoryImpl(private val authService: AuthService) : AuthRepository {
 
     override suspend fun login(user: User): Boolean = withContext(Dispatchers.IO) {
-        val request = LoginRequest.fromUser(user)
-        val result = authService.login(request)
+        try {
+            val request = LoginRequest.fromUser(user)
+            val result = authService.login(request)
 
-        result.onSuccess { loginResponse ->
-            JwtStorage.saveToken(loginResponse.token)
-            return@withContext true
-        }.onFailure {
+            result.onSuccess { loginResponse ->
+                JwtStorage.saveToken(loginResponse.token)
+                return@withContext true
+            }.onFailure { exception ->
+                println("Login error: ${exception.message}")
+                return@withContext false
+            }
+            return@withContext false
+        } catch (e: Exception) {
+            println("Repository login error: ${e.message}")
             return@withContext false
         }
-        return@withContext false
     }
 
     override suspend fun register(user: User): Boolean = withContext(Dispatchers.IO) {

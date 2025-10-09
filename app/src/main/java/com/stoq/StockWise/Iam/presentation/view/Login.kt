@@ -19,7 +19,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.stoq.StockWise.presentation.viewmodels.AuthViewModel
+import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.ui.theme.YellowHighlight
 import com.stoq.StockWise.R
 
@@ -35,7 +35,6 @@ fun LoginScreen(
     val errorMessageState by authViewModel.errorMessage.collectAsState()
     val isLoadingState by authViewModel.isLoading.collectAsState()
 
-    // Variable local
     var rememberMe by remember { mutableStateOf(false) }
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -106,7 +105,6 @@ fun LoginScreen(
                     )
                 }
 
-                // Campo de email
                 OutlinedTextField(
                     value = userState.email,
                     onValueChange = { authViewModel.updateEmail(it) },
@@ -118,8 +116,6 @@ fun LoginScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Campo de contraseña
                 OutlinedTextField(
                     value = userState.password,
                     onValueChange = { authViewModel.updatePassword(it) },

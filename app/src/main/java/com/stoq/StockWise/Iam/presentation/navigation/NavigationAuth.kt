@@ -1,4 +1,4 @@
-package com.stoq.StockWise.presentation.navigation
+package com.stoq.StockWise.Iam.presentation.navigation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stoq.StockWise.Iam.presentation.di.PresentationModule
+import com.stoq.StockWise.Iam.presentation.view.HomeScreen
 import com.stoq.StockWise.Iam.presentation.view.LoginScreen
 import com.stoq.StockWise.Iam.presentation.view.RegisterScreen
 import com.stoq.StockWise.shared.data.local.JwtStorage
@@ -63,8 +64,6 @@ fun NavigationAuth() {
                 )
             }
 
-            // TODO: Agregar pantalla "home" cuando este
-            /*
             composable("home") {
                 HomeScreen(goToLogin = {
                     navController.navigate("login") {
@@ -72,7 +71,6 @@ fun NavigationAuth() {
                     }
                 })
             }
-            */
         }
     }
 }

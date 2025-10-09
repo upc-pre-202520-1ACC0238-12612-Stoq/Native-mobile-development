@@ -1,10 +1,10 @@
-package com.stoq.StockWise.presentation.viewmodels
+package com.stoq.StockWise.Iam.presentation.viewmodels
 
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stoq.StockWise.Iam.data.repository.AuthRepository
 import com.stoq.StockWise.Iam.domain.models.User
+import com.stoq.StockWise.Iam.domain.validation.UserValidator
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -14,8 +14,11 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
     private val _user = MutableStateFlow(User())
     val user: StateFlow<User> = _user
 
-    private val _loginSuccess = MutableStateFlow<Boolean?>(null) // ← Cambiado a Boolean
+    private val _loginSuccess = MutableStateFlow<Boolean?>(null)
     val loginSuccess: StateFlow<Boolean?> = _loginSuccess
+    
+    private val _registerSuccess = MutableStateFlow<Boolean?>(null)
+    val registerSuccess: StateFlow<Boolean?> = _registerSuccess
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -40,15 +43,11 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
     }
 
     fun login() {
-        val email = _user.value.email
-        val password = _user.value.password
+        val user = _user.value
+        val validationResult = UserValidator.validateForLogin(user)
 
-        if (email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _errorMessage.value = "El email no es válido."
-            return
-        }
-        if (password.isBlank() || password.length < 4) {
-            _errorMessage.value = "La contraseña debe tener al menos 4 caracteres."
+        if (!validationResult.isValid) {
+            _errorMessage.value = validationResult.errors.firstOrNull()
             return
         }
 
@@ -57,13 +56,13 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val success = authRepository.login(_user.value) // ← Esto devuelve Boolean
+                val success = authRepository.login(user)
                 _loginSuccess.value = success
                 if (!success) {
-                    _errorMessage.value = "Email o contraseña incorrectos."
+                    _errorMessage.value = "Invalid credentials. Please check your email and password."
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Error de autenticación: ${e.message}"
+                _errorMessage.value = "Authentication error: ${e.message}"
                 _loginSuccess.value = false
             } finally {
                 _isLoading.value = false
@@ -72,20 +71,11 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
     }
 
     fun register() {
-        val email = _user.value.email
-        val password = _user.value.password
-        val username = _user.value.username
+        val user = _user.value
+        val validationResult = UserValidator.validateForRegistration(user)
 
-        if (email.isBlank() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _errorMessage.value = "El email no es válido."
-            return
-        }
-        if (password.isBlank() || password.length < 3) {
-            _errorMessage.value = "La contraseña debe tener al menos 3 caracteres."
-            return
-        }
-        if (username.isBlank()) {
-            _errorMessage.value = "El nombre de usuario es requerido."
+        if (!validationResult.isValid) {
+            _errorMessage.value = validationResult.errors.firstOrNull()
             return
         }
 
@@ -94,14 +84,14 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val success = authRepository.register(_user.value) // ← Esto devuelve Boolean
-                _loginSuccess.value = success
+                val success = authRepository.register(user)
+                _registerSuccess.value = success
                 if (!success) {
-                    _errorMessage.value = "Error en el registro. Intente nuevamente."
+                    _errorMessage.value = "Registration failed. Please try again."
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Error de registro: ${e.message}"
-                _loginSuccess.value = false
+                _errorMessage.value = "Registration error: ${e.message}"
+                _registerSuccess.value = false
             } finally {
                 _isLoading.value = false
             }
@@ -117,6 +107,10 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     fun resetLoginSuccess() {
         _loginSuccess.value = null
+    }
+    
+    fun resetRegisterSuccess() {
+        _registerSuccess.value = null
     }
 
     fun resetErrorMessage() {

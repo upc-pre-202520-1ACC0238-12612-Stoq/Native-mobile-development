@@ -1,7 +1,9 @@
 package com.stoq.StockWise.Iam.data.model
 
 import com.stoq.StockWise.Iam.domain.models.User
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RegisterRequest (
     val username: String,
     val password: String,

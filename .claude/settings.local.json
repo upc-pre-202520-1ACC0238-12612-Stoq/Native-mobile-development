@@ -5,7 +5,16 @@
       "Bash(mv:*)",
       "Bash(cat:*)",
       "Bash(tree:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__read_multiple_files",
+      "mcp__filesystem__read_text_file",
+      "mcp__filesystem__edit_file",
+      "mcp__filesystem__write_file",
+      "Bash(./gradlew:*)",
+      "mcp__filesystem__create_directory",
+      "Bash(mkdir:*)",
+      "Bash(.gradlew:*)"
     ],
     "deny": [],
     "ask": []

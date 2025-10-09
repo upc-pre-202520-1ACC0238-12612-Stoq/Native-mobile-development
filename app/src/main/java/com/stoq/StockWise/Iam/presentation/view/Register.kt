@@ -16,7 +16,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.stoq.StockWise.presentation.viewmodels.AuthViewModel
+import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.ui.theme.YellowHighlight
 import com.stoq.StockWise.R
 
@@ -28,7 +28,7 @@ fun RegisterScreen(
 ) {
     // Obtener los estados del ViewModel
     val userState by authViewModel.user.collectAsState()
-    val loginSuccessState by authViewModel.loginSuccess.collectAsState()
+    val registerSuccessState by authViewModel.registerSuccess.collectAsState()
     val errorMessageState by authViewModel.errorMessage.collectAsState()
     val isLoadingState by authViewModel.isLoading.collectAsState()
 
@@ -37,10 +37,10 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     // Observar si el registro fue exitoso
-    LaunchedEffect(loginSuccessState) {
-        if (loginSuccessState == true) {
+    LaunchedEffect(registerSuccessState) {
+        if (registerSuccessState == true) {
             onRegisterSuccess()
-            authViewModel.resetLoginSuccess()
+            authViewModel.resetRegisterSuccess()
         }
     }
 
@@ -158,7 +158,6 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Checkbox términos
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
