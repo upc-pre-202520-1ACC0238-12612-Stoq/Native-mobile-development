@@ -3,7 +3,9 @@ package com.stoq.StockWise.Iam.presentation.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -12,7 +14,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.stoq.StockWise.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.ui.theme.OrangePrimary
 import com.stoq.StockWise.ui.theme.YellowHighlight
@@ -20,18 +21,38 @@ import com.stoq.StockWise.R
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    viewModel: AuthViewModel? = null
+    authViewModel: AuthViewModel,
+    goToRegister: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    // Obtener los estados del ViewModel
+    val userState by authViewModel.user.collectAsState()
+    val loginSuccessState by authViewModel.loginSuccess.collectAsState()
+    val errorMessageState by authViewModel.errorMessage.collectAsState()
+    val isLoadingState by authViewModel.isLoading.collectAsState()
+
+    // Variable local para "Recuérdame"
     var rememberMe by remember { mutableStateOf(false) }
+
+    // Observar si el login fue exitoso
+    LaunchedEffect(loginSuccessState) {
+        if (loginSuccessState == true) {
+            onLoginSuccess()
+            authViewModel.resetLoginSuccess()
+        }
+    }
+
+    // Limpiar errores al entrar
+    LaunchedEffect(Unit) {
+        authViewModel.resetErrorMessage()
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(YellowHighlight)
-            .padding(24.dp),
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -39,17 +60,17 @@ fun LoginScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
-        ){
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.logo_stockwise),
                 contentDescription = "Stock Wise Logo",
                 modifier = Modifier
-                    .size(200.dp)
+                    .size(150.dp)
                     .align(Alignment.CenterHorizontally)
             )
         }
 
-        Spacer(modifier = Modifier.height(35.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -58,39 +79,51 @@ fun LoginScreen(
             )
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
+                modifier = Modifier.padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
-            ){
+            ) {
                 // Título
                 Text(
                     text = "Inicio de sesión",
-                    style = MaterialTheme.typography.displayMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onBackground
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Mostrar error si existe
+                errorMessageState?.let { message ->
+                    Text(
+                        text = message,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
 
                 // Campo de email
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
+                    value = userState.email,
+                    onValueChange = { authViewModel.updateEmail(it) },
                     label = { Text("Correo electrónico") },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoadingState
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Campo de contraseña
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = userState.password,
+                    onValueChange = { authViewModel.updatePassword(it) },
                     label = { Text("Contraseña") },
                     modifier = Modifier.fillMaxWidth(),
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isLoadingState
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -102,7 +135,8 @@ fun LoginScreen(
                 ) {
                     Checkbox(
                         checked = rememberMe,
-                        onCheckedChange = { rememberMe = it }
+                        onCheckedChange = { rememberMe = it },
+                        enabled = !isLoadingState
                     )
                     Text(
                         text = "Recuérdame",
@@ -115,7 +149,8 @@ fun LoginScreen(
                 // Botón Google
                 OutlinedButton(
                     onClick = { /* TODO: Google login */ },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoadingState
                 ) {
                     Text("Iniciar con google")
                 }
@@ -124,25 +159,33 @@ fun LoginScreen(
 
                 // Botón principal
                 Button(
-                    onClick = { /* TODO: Login logic */ },
+                    onClick = { authViewModel.login() },
                     modifier = Modifier.fillMaxWidth(),
+                    enabled = !isLoadingState,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = OrangePrimary
+                        containerColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text("Iniciar sesión")
-                }
-
+                    if (isLoadingState) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    } else {
+                        Text("Iniciar sesión")
+                    }
                 }
             }
+        }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Enlace a registro
         Row {
             Text("¿No tienes una cuenta? ")
             TextButton(
-                onClick = { navController.navigate("register") }
+                onClick = goToRegister,
+                enabled = !isLoadingState
             ) {
                 Text("Regístrate")
             }
