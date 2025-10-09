@@ -6,16 +6,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.stoq.StockWise.presentation.viewmodels.AuthViewModel
-import com.stoq.StockWise.ui.theme.OrangePrimary
 import com.stoq.StockWise.ui.theme.YellowHighlight
 import com.stoq.StockWise.R
 
@@ -31,8 +35,9 @@ fun LoginScreen(
     val errorMessageState by authViewModel.errorMessage.collectAsState()
     val isLoadingState by authViewModel.isLoading.collectAsState()
 
-    // Variable local para "Recuérdame"
+    // Variable local
     var rememberMe by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     // Observar si el login fue exitoso
     LaunchedEffect(loginSuccessState) {
@@ -120,10 +125,27 @@ fun LoginScreen(
                     onValueChange = { authViewModel.updatePassword(it) },
                     label = { Text("Contraseña") },
                     modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     singleLine = true,
-                    enabled = !isLoadingState
+                    enabled = !isLoadingState,
+                    trailingIcon = {
+                        // Icono de ojo para mostrar/ocultar contraseña
+                        IconButton(
+                            onClick = { passwordVisible = !passwordVisible },
+                            enabled = !isLoadingState
+                        ) {
+                            Icon(
+                                painter = painterResource(
+                                    id = if (passwordVisible)
+                                        R.drawable.ic_visibility_off
+                                    else
+                                        R.drawable.ic_visibility
+                                ),
+                                contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
+                            )
+                        }
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
