@@ -4,6 +4,6 @@ import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
-val presentationModule = module {
+val iamPresentationModule = module {
     viewModel { AuthViewModel(get()) }
 }

@@ -71,7 +71,7 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
                             // Emitir evento de login exitoso
                             EventBus.emit(LoginSuccessEvent(
                                 userId = _user.value.id ?: 1, // Por ahora usar ID 1
-                                token = "mock_token_${_user.value.id}"
+                                token = "mock_token_${_user.value.id ?: 1}"
                             ))
                             _uiState.value = _uiState.value.copy(isAuthenticated = true)
                         } else {
@@ -114,7 +114,7 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
                             // Emitir evento de registro exitoso
                             EventBus.emit(RegisterSuccessEvent(
                                 userId = _user.value.id ?: 1, // Por ahora usar ID 1
-                                token = "mock_token_${_user.value.id}"
+                                token = "mock_token_${_user.value.id ?: 1}"
                             ))
                             _uiState.value = _uiState.value.copy(isAuthenticated = true)
                         } else {

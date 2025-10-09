@@ -15,8 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import com.stoq.StockWise.Iam.presentation.view.HomeScreen
 import com.stoq.StockWise.Iam.presentation.view.LoginScreen
 import com.stoq.StockWise.Iam.presentation.view.RegisterScreen
-import com.stoq.StockWise.Iam.data.di.DataModule
-import kotlinx.coroutines.runBlocking
 import com.stoq.StockWise.ui.theme.YellowHighlight
 
 @Preview
@@ -29,11 +27,8 @@ fun NavigationAuth(
     val isLoggedIn = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val authRepository = DataModule.getAuthRepository()
-        val hasToken = runBlocking { 
-            authRepository.getToken() != null 
-        }
-        isLoggedIn.value = hasToken
+        // Verificar si el usuario ya está autenticado usando el AuthViewModel
+        isLoggedIn.value = authViewModel.uiState.value.isAuthenticated
     }
 
     Scaffold(modifier = modifier.background(YellowHighlight)) { padding ->

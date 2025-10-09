@@ -43,7 +43,7 @@ class AuthenticationService {
      * Checks if user session is valid based on token and expiration
      */
     fun isSessionValid(user: User): Boolean {
-        return user.token.isNotEmpty() && user.id > 0
+        return user.token.isNotEmpty() && (user.id ?: 0) > 0
     }
 
     /**

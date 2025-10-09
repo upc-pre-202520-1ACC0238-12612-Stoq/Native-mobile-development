@@ -7,6 +7,10 @@ package com.stoq.StockWise.shared.infrastructure.network
 object ApiConfig {
     const val BASE_URL = "http://34.39.181.148:8080"
     const val API_VERSION = "api"
+    
+    // Configuración del servidor para verificación de conectividad
+    const val SERVER_HOST = "34.39.181.148"
+    const val SERVER_PORT = 8080
 
     // Token de autenticación temporal
     const val AUTH_TOKEN = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NjA1NzYxODIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL3NpZCI6IjEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiS2V2aW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbmlzdHJhdG9yIiwicm9sZSI6IkFkbWluaXN0cmF0b3IiLCJpYXQiOjE3NTk5NzEzODIsIm5iZiI6MTc1OTk3MTM4Mn0.MSuOVMRg2Vfdpg-vDHOqKg5SXOpUKVtmruXPk0toMcs"

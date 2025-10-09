@@ -1,6 +1,8 @@
 package com.stoq.StockWise.shared.infrastructure.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
@@ -19,12 +21,17 @@ object BaseApiService {
      * @return HttpClient configurado
      */
     fun createHttpClient(): HttpClient {
-        return HttpClient {
+        return HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true
                     isLenient = true
                 })
+            }
+            install(HttpTimeout) {
+                requestTimeoutMillis = ApiConfig.CONNECT_TIMEOUT_SECONDS * 1000
+                connectTimeoutMillis = ApiConfig.CONNECT_TIMEOUT_SECONDS * 1000
+                socketTimeoutMillis = ApiConfig.READ_TIMEOUT_SECONDS * 1000
             }
             install(Logging) {
                 logger = object : Logger {
