@@ -27,7 +27,8 @@ fun NavigationAuth() {
     val isLoggedIn = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        isLoggedIn.value = JwtStorage.getToken() != null
+        // Comentado para evitar login automático - siempre mostrar login
+        isLoggedIn.value = false // JwtStorage.getToken() != null
     }
 
     Scaffold(modifier = Modifier.background(YellowHighlight)) { padding ->

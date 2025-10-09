@@ -14,7 +14,8 @@
       "Bash(./gradlew:*)",
       "mcp__filesystem__create_directory",
       "Bash(mkdir:*)",
-      "Bash(.gradlew:*)"
+      "Bash(.gradlew:*)",
+      "Bash(adb shell am start:*)"
     ],
     "deny": [],
     "ask": []
