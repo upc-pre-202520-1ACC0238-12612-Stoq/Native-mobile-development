@@ -13,6 +13,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         JwtStorage.initialize(this)
+        
         setContent {
             StockWiseTheme {
                 NavigationAuth()
