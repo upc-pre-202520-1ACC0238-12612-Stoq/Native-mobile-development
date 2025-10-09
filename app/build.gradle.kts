@@ -17,6 +17,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // Configuración para compatibilidad con 16 KB
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+        }
     }
 
     buildTypes {
@@ -28,6 +33,13 @@ android {
             )
         }
     }
+    
+    // Configuración para compatibilidad con 16 KB
+    packaging {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -37,6 +49,11 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    
+    // Configuración adicional para compatibilidad con 16 KB
+    androidResources {
+        noCompress += listOf("dump_syms")
     }
 }
 

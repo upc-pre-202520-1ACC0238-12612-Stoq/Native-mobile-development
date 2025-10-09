@@ -1,0 +1,96 @@
+---
+globs: **/product/**
+description: Arquitectura y patrones del módulo de productos
+---
+
+# Arquitectura del Módulo de Productos
+
+El módulo `product` sigue una arquitectura limpia (Clean Architecture) con separación clara de responsabilidades:
+
+## Estructura de Directorios
+
+### Domain Layer (`domain/`)
+- **`entities/`**: Contiene las entidades de dominio puras
+  - [Product.kt](mdc:product/domain/entities/Product.kt): Entidad principal con lógica de negocio
+  - Incluye métodos de cálculo como `getProfit()` y `getProfitPercentage()`
+- **`repositories/`**: Define contratos de repositorio
+  - [ProductRepository.kt](mdc:product/domain/repositories/ProductRepository.kt): Interfaz del repositorio
+
+### Infrastructure Layer (`infrastructure/`)
+- **`api/`**: Servicios de API REST
+  - [ProductApiService.kt](mdc:product/infrastructure/api/ProductApiService.kt): Interfaz Retrofit
+- **`dto/`**: Data Transfer Objects para comunicación con API
+  - [ProductDto.kt](mdc:product/infrastructure/dto/ProductDto.kt): DTOs con anotaciones `@SerializedName`
+- **`mappers/`**: Convertidores entre DTOs y entidades de dominio
+  - [ProductMapper.kt](mdc:product/infrastructure/mappers/ProductMapper.kt): Mapper estático con métodos `fromDto()` y `toDto()`
+- **`repositories/`**: Implementaciones concretas de repositorios
+  - [ProductRepositoryImpl.kt](mdc:product/infrastructure/repositories/ProductRepositoryImpl.kt): Implementación que consume la API
+
+### Presentation Layer (`presentation/`)
+- **`ui/`**: Pantallas de Compose
+  - [ProductScreen.kt](mdc:product/presentation/ui/ProductScreen.kt): Pantalla principal con Material Design 3
+- **`viewmodels/`**: ViewModels con estado
+  - [ProductViewModel.kt](mdc:product/presentation/viewmodels/ProductViewModel.kt): ViewModel con `ProductUiState`
+
+## Patrones de Diseño
+
+### 1. Domain-Driven Design (DDD)
+- Entidades de dominio con lógica de negocio
+- Repositorios como abstracciones
+- Separación clara entre dominio e infraestructura
+
+### 2. Repository Pattern
+- Interfaz en el dominio
+- Implementación en infraestructura
+- Uso de `Result<T>` para manejo de errores
+
+### 3. Mapper Pattern
+- Conversión bidireccional entre DTOs y entidades
+- Métodos estáticos en objeto `ProductMapper`
+- Manejo de listas con `fromDtoList()`
+
+### 4. MVVM + Compose
+- ViewModel maneja estado con `mutableStateOf`
+- UI State como data class
+- Separación de lógica de presentación
+
+## Convenciones de Código
+
+### Entidades de Dominio
+- Usar `data class` para inmutabilidad
+- Propiedades nullable con `?`
+- Métodos de negocio como funciones de extensión
+- Documentación con KDoc
+
+### DTOs
+- Anotaciones `@SerializedName` para mapeo JSON
+- Estructura similar a entidades de dominio
+- Nombres descriptivos para campos
+
+### ViewModels
+- Estado inmutable con `data class`
+- Uso de `viewModelScope` para corrutinas
+- Manejo de errores con `Result<T>`
+- Métodos privados para lógica interna
+
+### UI Components
+- Uso de Material Design 3
+- Componentes reutilizables como `ProductCard`
+- Preview functions para desarrollo
+- Colores y estilos consistentes
+
+## Dependencias
+
+### Domain
+- No depende de capas externas
+- Solo entidades y contratos
+
+### Infrastructure
+- Depende del dominio
+- Usa Retrofit para API
+- Usa Gson para serialización
+
+### Presentation
+- Depende del dominio
+- Usa Compose para UI
+- Inyección de dependencias para ViewModel

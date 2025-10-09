@@ -1,4 +1,4 @@
-package com.stoq.StockWise.sharedkernel.infrastructure.network
+package com.stoq.StockWise.shared.infrastructure.network
 
 /**
  * Configuration for API endpoints used across all bounded contexts.

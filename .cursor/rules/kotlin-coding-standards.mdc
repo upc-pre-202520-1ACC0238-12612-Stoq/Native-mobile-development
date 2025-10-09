@@ -1,0 +1,259 @@
+---
+globs: *.kt
+description: Estándares de código Kotlin para el proyecto StockWise
+---
+
+# Estándares de Código Kotlin - StockWise
+
+## Nomenclatura
+
+### Clases y Objetos
+- **Clases**: PascalCase (`ProductRepository`)
+- **Interfaces**: PascalCase con sufijo descriptivo (`ProductRepository`, `ProductApiService`)
+- **Data Classes**: PascalCase (`Product`, `ProductDto`)
+- **Objects**: PascalCase (`ProductMapper`)
+- **Enums**: PascalCase (`ProductStatus`)
+
+### Funciones y Variables
+- **Funciones**: camelCase (`getAllProducts()`, `updateSearchQuery()`)
+- **Variables**: camelCase (`productList`, `isLoading`)
+- **Constantes**: UPPER_SNAKE_CASE (`API_BASE_URL`)
+- **Propiedades privadas**: camelCase con prefijo `_` (`_privateProperty`)
+
+### Paquetes
+- **Estructura**: `com.stoq.StockWise.{module}.{layer}.{subpackage}`
+- **Ejemplos**: 
+  - `com.stoq.StockWise.product.domain.entities`
+  - `com.stoq.StockWise.product.infrastructure.api`
+  - `com.stoq.StockWise.product.presentation.ui`
+
+## Estructura de Archivos
+
+### Imports
+```kotlin
+// 1. Imports de Kotlin stdlib
+import kotlinx.coroutines.launch
+
+// 2. Imports de Android/Compose
+import androidx.compose.runtime.*
+import androidx.lifecycle.ViewModel
+
+// 3. Imports de terceros
+import retrofit2.Response
+import retrofit2.http.GET
+
+// 4. Imports del proyecto (orden alfabético)
+import com.stoq.StockWise.product.domain.entities.Product
+import com.stoq.StockWise.product.domain.repositories.ProductRepository
+```
+
+### Orden de Declaraciones en Clases
+```kotlin
+class ExampleClass {
+    // 1. Propiedades
+    private val privateProperty: String = ""
+    var publicProperty: String = ""
+    
+    // 2. Constructor primario
+    constructor(param: String) {
+        // Inicialización
+    }
+    
+    // 3. Constructores secundarios
+    constructor() : this("default")
+    
+    // 4. Inicializadores
+    init {
+        // Código de inicialización
+    }
+    
+    // 5. Métodos públicos
+    fun publicMethod() {}
+    
+    // 6. Métodos privados
+    private fun privateMethod() {}
+    
+    // 7. Clases internas/companion objects
+    companion object {
+        const val CONSTANT = "value"
+    }
+}
+```
+
+## Documentación
+
+### KDoc Obligatorio
+```kotlin
+/**
+ * Descripción breve de la clase/función
+ * 
+ * Descripción detallada si es necesario
+ * 
+ * @param param1 Descripción del parámetro
+ * @param param2 Descripción del parámetro
+ * @return Descripción del valor de retorno
+ * @throws ExceptionType Descripción de cuándo se lanza
+ */
+class ExampleClass(
+    private val param1: String,
+    private val param2: Int
+) {
+    /**
+     * Descripción del método
+     */
+    fun exampleMethod(): String {
+        return ""
+    }
+}
+```
+
+## Manejo de Nulabilidad
+
+### Reglas de Null Safety
+- **Preferir tipos no-nullables** cuando sea posible
+- **Usar `?` solo cuando sea necesario** para valores opcionales
+- **Usar `!!` solo en casos excepcionales** y con comentario explicativo
+- **Usar `?.` y `?:` para manejo seguro de nulos**
+
+```kotlin
+// ✅ Correcto
+val name: String = product.name ?: "Sin nombre"
+val description: String? = product.description
+
+// ❌ Incorrecto
+val name: String = product.name!! // Sin comentario explicativo
+```
+
+## Funciones y Expresiones
+
+### Funciones de Extensión
+```kotlin
+// ✅ Correcto - Funciones de extensión para lógica de dominio
+fun Product.getProfit(): Double {
+    val purchase = purchasePrice ?: 0.0
+    val sale = salePrice ?: 0.0
+    return sale - purchase
+}
+
+// ✅ Correcto - Funciones de extensión para utilidades
+fun String.isValidEmail(): Boolean {
+    return contains("@") && contains(".")
+}
+```
+
+### Expresiones vs Declaraciones
+```kotlin
+// ✅ Preferir expresiones cuando sea posible
+fun getStatus(): String = if (isActive) "Activo" else "Inactivo"
+
+// ✅ Usar declaraciones para lógica compleja
+fun calculateTotal(): Double {
+    val basePrice = getBasePrice()
+    val discount = calculateDiscount()
+    val tax = calculateTax(basePrice - discount)
+    return basePrice - discount + tax
+}
+```
+
+## Manejo de Errores
+
+### Result Pattern
+```kotlin
+// ✅ Usar Result<T> para operaciones que pueden fallar
+suspend fun getProduct(id: Int): Result<Product> {
+    return try {
+        val product = apiService.getProduct(id)
+        Result.success(product)
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+}
+
+// ✅ Manejo de Result en ViewModels
+productRepository.getProduct(id)
+    .onSuccess { product ->
+        uiState = uiState.copy(product = product)
+    }
+    .onFailure { exception ->
+        uiState = uiState.copy(errorMessage = exception.message)
+    }
+```
+
+## Corrutinas
+
+### ViewModelScope
+```kotlin
+// ✅ Usar viewModelScope para operaciones de UI
+fun loadData() {
+    viewModelScope.launch {
+        uiState = uiState.copy(isLoading = true)
+        // Operación suspend
+        uiState = uiState.copy(isLoading = false)
+    }
+}
+```
+
+### Manejo de Excepciones
+```kotlin
+// ✅ Manejo explícito de excepciones
+viewModelScope.launch {
+    try {
+        val result = repository.getData()
+        uiState = uiState.copy(data = result)
+    } catch (e: Exception) {
+        uiState = uiState.copy(errorMessage = e.message)
+    }
+}
+```
+
+## Compose
+
+### Composable Functions
+```kotlin
+// ✅ Nomenclatura clara para Composable
+@Composable
+fun ProductCard(
+    product: Product,
+    onDetailClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Implementación
+}
+
+// ✅ Preview functions obligatorias
+@Preview(showBackground = true)
+@Composable
+fun ProductCardPreview() {
+    StoqTheme {
+        ProductCard(
+            product = sampleProduct,
+            onDetailClick = {}
+        )
+    }
+}
+```
+
+### State Management
+```kotlin
+// ✅ UI State como data class
+data class ProductUiState(
+    val products: List<Product> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+)
+
+// ✅ Estado inmutable en ViewModel
+var uiState by mutableStateOf(ProductUiState())
+    private set
+```
+
+## Prohibiciones
+
+- ❌ **No usar `var` en ViewModels** - Solo `val` con `mutableStateOf`
+- ❌ **No usar `!!` sin comentario explicativo**
+- ❌ **No usar `Any` como tipo de retorno**
+- ❌ **No usar `Unit` como tipo de retorno** en funciones públicas
+- ❌ **No usar `lateinit`** sin inicialización garantizada
+- ❌ **No usar `var` en data classes** a menos que sea absolutamente necesario
+- ❌ **No usar `@Suppress`** sin comentario explicativo
+- ❌ **No usar `TODO()`** en código de producción sin fecha de resolución

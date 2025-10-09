@@ -1,0 +1,164 @@
+---
+alwaysApply: true
+description: Patrón de arquitectura limpia para todos los bounded contexts del proyecto
+---
+
+# Patrón de Arquitectura Limpia - StockWise
+
+Todos los bounded contexts del proyecto deben seguir esta estructura de arquitectura limpia con separación clara de responsabilidades.
+
+## Estructura Obligatoria de Bounded Contexts
+
+Cada bounded context debe tener exactamente esta estructura:
+
+```
+bounded-context/
+├── domain/
+│   ├── entities/          # Entidades de dominio puras
+│   └── repositories/      # Contratos de repositorio
+├── infrastructure/
+│   ├── api/              # Servicios de API REST
+│   ├── dto/              # Data Transfer Objects
+│   ├── mappers/          # Convertidores DTO ↔ Entidad
+│   └── repositories/      # Implementaciones de repositorio
+└── presentation/
+    ├── ui/               # Pantallas de Compose
+    └── viewmodels/       # ViewModels con estado
+```
+
+## Reglas por Capa
+
+### Domain Layer
+- **SIN dependencias externas** - Solo entidades y contratos
+- **Entidades**: `data class` inmutables con lógica de negocio
+- **Repositorios**: Interfaces que definen contratos
+- **Nomenclatura**: `{Entity}Repository.kt`
+
+### Infrastructure Layer
+- **Depende SOLO del dominio** - No de presentation
+- **API Services**: Interfaces Retrofit con anotaciones HTTP
+- **DTOs**: Con `@SerializedName` para mapeo JSON
+- **Mappers**: Objetos estáticos con métodos `fromDto()` y `toDto()`
+- **Repository Impl**: Implementaciones que consumen API
+- **Nomenclatura**: `{Entity}ApiService.kt`, `{Entity}Dto.kt`, `{Entity}Mapper.kt`, `{Entity}RepositoryImpl.kt`
+
+### Presentation Layer
+- **Depende SOLO del dominio** - No de infrastructure
+- **ViewModels**: Con `data class` para UI State
+- **UI Components**: Material Design 3 con Compose
+- **Nomenclatura**: `{Entity}Screen.kt`, `{Entity}ViewModel.kt`, `{Entity}UiState`
+
+## Patrones Obligatorios
+
+### 1. Repository Pattern
+```kotlin
+// Domain
+interface EntityRepository {
+    suspend fun getAllEntities(): Result<List<Entity>>
+    suspend fun getEntityById(id: Int): Result<Entity>
+}
+
+// Infrastructure
+class EntityRepositoryImpl(
+    private val apiService: EntityApiService
+) : EntityRepository {
+    // Implementación con manejo de errores usando Result<T>
+}
+```
+
+### 2. Mapper Pattern
+```kotlin
+object EntityMapper {
+    fun fromDto(dto: EntityDto): Entity
+    fun toDto(entity: Entity): EntityDto
+    fun fromDtoList(dtoList: List<EntityDto>): List<Entity>
+}
+```
+
+### 3. MVVM + Compose
+```kotlin
+// UI State
+data class EntityUiState(
+    val entities: List<Entity> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+)
+
+// ViewModel
+class EntityViewModel(
+    private val entityRepository: EntityRepository
+) : ViewModel() {
+    var uiState by mutableStateOf(EntityUiState())
+        private set
+}
+```
+
+## Convenciones de Código
+
+### Entidades de Dominio
+- `data class` inmutables
+- Propiedades nullable con `?`
+- Métodos de negocio como funciones
+- Documentación KDoc obligatoria
+
+### DTOs
+- Anotaciones `@SerializedName` obligatorias
+- Estructura similar a entidades de dominio
+- Nombres descriptivos
+
+### ViewModels
+- Estado inmutable con `data class`
+- Uso de `viewModelScope` para corrutinas
+- Manejo de errores con `Result<T>`
+- Métodos privados para lógica interna
+
+### UI Components
+- Material Design 3 obligatorio
+- Componentes reutilizables
+- Preview functions para desarrollo
+- Colores y estilos consistentes
+
+## Manejo de Errores
+
+- **Domain**: Usar `Result<T>` para operaciones que pueden fallar
+- **Infrastructure**: Convertir excepciones a `Result.failure()`
+- **Presentation**: Mostrar errores en UI State
+
+## Inyección de Dependencias
+
+- ViewModels reciben repositorios por constructor
+- Repositorios reciben servicios API por constructor
+- No usar `@Inject` en entidades de dominio
+
+## Nomenclatura de Archivos
+
+- **Agregados/Entidades**: `{AggregateName}.kt`
+- **Repositorios**: `{AggregateName}Repository.kt` / `{AggregateName}RepositoryImpl.kt`
+- **API**: `{AggregateName}ApiService.kt`
+- **DTOs**: `{AggregateName}Dto.kt`
+- **Mappers**: `{AggregateName}Mapper.kt`
+- **UI**: `{AggregateName}Screen.kt`
+- **ViewModels**: `{AggregateName}ViewModel.kt`
+- **UI State**: `{AggregateName}UiState` (dentro del ViewModel)
+
+## Estructura de Paquetes por Bounded Context
+
+```
+com.stoq.StockWise.{bounded-context}.{layer}.{subpackage}
+```
+
+**Ejemplos**:
+- `com.stoq.StockWise.product.domain.entities`
+- `com.stoq.StockWise.product.infrastructure.api`
+- `com.stoq.StockWise.product.presentation.ui`
+- `com.stoq.StockWise.iam.domain.entities`
+- `com.stoq.StockWise.inventory.domain.repositories`
+
+## Prohibiciones
+
+- ❌ Dependencias circulares entre capas
+- ❌ Acceso directo a API desde ViewModels
+- ❌ Lógica de negocio en ViewModels
+- ❌ DTOs en capa de dominio
+- ❌ Entidades de dominio en capa de infraestructura
+- ❌ Dependencias de UI en capa de dominio

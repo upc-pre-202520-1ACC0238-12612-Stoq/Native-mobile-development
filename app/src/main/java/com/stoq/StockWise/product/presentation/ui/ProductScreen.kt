@@ -27,7 +27,7 @@ import com.stoq.StockWise.product.domain.entities.Product
 import com.stoq.StockWise.product.domain.entities.Tag
 import com.stoq.StockWise.product.presentation.viewmodels.ProductUiState
 import com.stoq.StockWise.product.presentation.viewmodels.ProductViewModel
-import com.stoq.StockWise.ui.theme.StoqTheme
+import com.stoq.StockWise.ui.theme.StockWiseTheme
 
 /**
  * Pantalla principal de productos que replica el diseño de la imagen
@@ -51,14 +51,6 @@ fun ProductScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Logo
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Logo",
-                        tint = Color(0xFFE65100),
-                        modifier = Modifier.size(32.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Stock",
                         fontSize = 24.sp,
@@ -357,7 +349,7 @@ fun ProductCard(
 @Preview(showBackground = true)
 @Composable
 fun ProductCardPreview() {
-    StoqTheme {
+    StockWiseTheme {
         ProductCard(
             product = Product(
                 id = 2,

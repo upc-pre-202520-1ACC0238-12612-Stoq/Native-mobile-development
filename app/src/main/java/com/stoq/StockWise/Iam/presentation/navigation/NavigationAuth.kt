@@ -12,25 +12,31 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.stoq.StockWise.Iam.presentation.di.PresentationModule
 import com.stoq.StockWise.Iam.presentation.view.HomeScreen
 import com.stoq.StockWise.Iam.presentation.view.LoginScreen
 import com.stoq.StockWise.Iam.presentation.view.RegisterScreen
-import com.stoq.StockWise.shared.data.local.JwtStorage
+import com.stoq.StockWise.Iam.data.di.DataModule
+import kotlinx.coroutines.runBlocking
 import com.stoq.StockWise.ui.theme.YellowHighlight
 
 @Preview
 @Composable
-fun NavigationAuth() {
+fun NavigationAuth(
+    authViewModel: com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel,
+    modifier: Modifier = Modifier
+) {
     val navController = rememberNavController()
-    val authViewModel = PresentationModule.getAuthViewModel()
     val isLoggedIn = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        isLoggedIn.value = JwtStorage.getToken() != null
+        val authRepository = DataModule.getAuthRepository()
+        val hasToken = runBlocking { 
+            authRepository.getToken() != null 
+        }
+        isLoggedIn.value = hasToken
     }
 
-    Scaffold(modifier = Modifier.background(YellowHighlight)) { padding ->
+    Scaffold(modifier = modifier.background(YellowHighlight)) { padding ->
         NavHost(
             navController,
             startDestination = if (isLoggedIn.value) "home" else "login",

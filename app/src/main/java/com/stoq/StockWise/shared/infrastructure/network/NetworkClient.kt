@@ -1,4 +1,4 @@
-package com.stoq.StockWise.sharedkernel.infrastructure.network
+package com.stoq.StockWise.shared.infrastructure.network
 
 import com.stoq.StockWise.product.infrastructure.api.ProductApiService
 import retrofit2.Retrofit

@@ -3,7 +3,7 @@ package com.stoq.StockWise.Iam.data.remote
 import com.stoq.StockWise.Iam.data.model.LoginRequest
 import com.stoq.StockWise.Iam.data.model.LoginResponse
 import com.stoq.StockWise.Iam.data.model.RegisterRequest
-import com.stoq.StockWise.sharedkernel.infrastructure.network.ApiConfig
+import com.stoq.StockWise.shared.infrastructure.network.ApiConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.network.sockets.ConnectTimeoutException
