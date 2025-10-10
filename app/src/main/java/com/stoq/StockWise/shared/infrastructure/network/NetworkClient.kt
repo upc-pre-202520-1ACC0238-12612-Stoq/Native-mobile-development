@@ -1,6 +1,7 @@
 package com.stoq.StockWise.shared.infrastructure.network
 
 import com.stoq.StockWise.product.infrastructure.api.ProductApiService
+import com.stoq.StockWise.inventory.infrastructure.api.InventoryApiService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -42,5 +43,12 @@ object NetworkClient {
      */
     fun createProductApiService(): ProductApiService {
         return retrofit.create(ProductApiService::class.java)
+    }
+    
+    /**
+     * Crea una instancia del servicio API de inventarios
+     */
+    fun createInventoryApiService(): InventoryApiService {
+        return retrofit.create(InventoryApiService::class.java)
     }
 }

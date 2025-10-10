@@ -100,6 +100,12 @@ fun MainApp() {
                 
                 ProductScreen(
                     viewModel = productViewModel,
+                    onLogout = {
+                        authViewModel.logout()
+                        navController.navigate("auth") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
                     modifier = Modifier.padding(innerPadding)
                 )
             }

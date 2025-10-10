@@ -2,76 +2,63 @@ package com.stoq.StockWise.inventory.infrastructure.repositories
 
 import com.stoq.StockWise.inventory.domain.entities.Inventory
 import com.stoq.StockWise.inventory.domain.repositories.InventoryRepository
-import kotlinx.coroutines.delay
+import com.stoq.StockWise.inventory.infrastructure.api.InventoryApiService
+import com.stoq.StockWise.inventory.infrastructure.mappers.InventoryMapper
 
 /**
- * Implementación local del repositorio de inventarios.
- * Por ahora almacena datos en memoria hasta que se implemente la API.
+ * Implementación del repositorio de inventarios
+ * 
+ * Proporciona la implementación concreta del contrato InventoryRepository
+ * utilizando el servicio API para la persistencia de datos.
  */
-class InventoryRepositoryImpl : InventoryRepository {
+class InventoryRepositoryImpl(
+    private val apiService: InventoryApiService
+) : InventoryRepository {
     
-    // Almacenamiento temporal en memoria
-    private val inventories = mutableListOf<Inventory>()
-    private var nextId = 1
-    
-    override suspend fun getInventoriesByUserId(userId: Int): Result<List<Inventory>> {
+    override suspend fun getAllInventories(): Result<List<Inventory>> {
         return try {
-            delay(500) // Simular latencia de red
-            val userInventories = inventories.filter { it.userId == userId }
-            Result.success(userInventories)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-    
-    override suspend fun getInventoryById(inventoryId: Int): Result<Inventory> {
-        return try {
-            delay(300) // Simular latencia de red
-            val inventory = inventories.find { it.id == inventoryId }
-            if (inventory != null) {
-                Result.success(inventory)
+            val response = apiService.getAllInventories()
+            if (response.isSuccessful) {
+                val inventories = response.body()?.let { InventoryMapper.fromDtoList(it) } ?: emptyList()
+                Result.success(inventories)
             } else {
-                Result.failure(Exception("Inventario no encontrado"))
+                Result.failure(Exception("Error al obtener inventarios: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
     
-    override suspend fun createInventory(inventory: Inventory): Result<Inventory> {
+    override suspend fun getInventoryById(id: Int): Result<Inventory> {
         return try {
-            delay(800) // Simular latencia de red
-            val newInventory = inventory.copy(id = nextId++)
-            inventories.add(newInventory)
-            Result.success(newInventory)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-    
-    override suspend fun updateInventory(inventory: Inventory): Result<Inventory> {
-        return try {
-            delay(600) // Simular latencia de red
-            val index = inventories.indexOfFirst { it.id == inventory.id }
-            if (index != -1) {
-                inventories[index] = inventory
-                Result.success(inventory)
+            val response = apiService.getInventoryById(id)
+            if (response.isSuccessful) {
+                val inventoryDto = response.body()
+                if (inventoryDto != null) {
+                    Result.success(InventoryMapper.fromDto(inventoryDto))
+                } else {
+                    Result.failure(Exception("Inventario no encontrado"))
+                }
             } else {
-                Result.failure(Exception("Inventario no encontrado"))
+                Result.failure(Exception("Error al obtener inventario: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
     
-    override suspend fun deleteInventory(inventoryId: Int): Result<Unit> {
+    override suspend fun getMainInventory(): Result<Inventory> {
         return try {
-            delay(400) // Simular latencia de red
-            val removed = inventories.removeAll { it.id == inventoryId }
-            if (removed) {
-                Result.success(Unit)
+            val response = apiService.getMainInventory()
+            if (response.isSuccessful) {
+                val inventoryDto = response.body()
+                if (inventoryDto != null) {
+                    Result.success(InventoryMapper.fromDto(inventoryDto))
+                } else {
+                    Result.failure(Exception("No se encontró inventario principal"))
+                }
             } else {
-                Result.failure(Exception("Inventario no encontrado"))
+                Result.failure(Exception("Error al obtener inventario principal: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -80,29 +67,66 @@ class InventoryRepositoryImpl : InventoryRepository {
     
     override suspend fun hasInventory(userId: Int): Result<Boolean> {
         return try {
-            delay(200) // Simular latencia de red
-            val hasInventory = inventories.any { it.userId == userId }
-            Result.success(hasInventory)
+            val response = apiService.hasInventory(userId)
+            if (response.isSuccessful) {
+                val hasInventory = response.body() ?: false
+                Result.success(hasInventory)
+            } else {
+                Result.failure(Exception("Error al verificar inventario: ${response.code()}"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
     
-    override suspend fun getMainInventory(userId: Int): Result<Inventory> {
+    override suspend fun createInventory(inventory: Inventory): Result<Inventory> {
         return try {
-            delay(300) // Simular latencia de red
-            val mainInventory = inventories
-                .filter { it.userId == userId }
-                .minByOrNull { it.id ?: Int.MAX_VALUE }
-            
-            if (mainInventory != null) {
-                Result.success(mainInventory)
+            val inventoryDto = InventoryMapper.toDto(inventory)
+            val response = apiService.createInventory(inventoryDto)
+            if (response.isSuccessful) {
+                val createdInventoryDto = response.body()
+                if (createdInventoryDto != null) {
+                    Result.success(InventoryMapper.fromDto(createdInventoryDto))
+                } else {
+                    Result.failure(Exception("Error al crear inventario: respuesta vacía"))
+                }
             } else {
-                Result.failure(Exception("Usuario no tiene inventarios"))
+                Result.failure(Exception("Error al crear inventario: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    override suspend fun updateInventory(inventory: Inventory): Result<Inventory> {
+        return try {
+            val inventoryDto = InventoryMapper.toDto(inventory)
+            val response = apiService.updateInventory(inventory.id, inventoryDto)
+            if (response.isSuccessful) {
+                val updatedInventoryDto = response.body()
+                if (updatedInventoryDto != null) {
+                    Result.success(InventoryMapper.fromDto(updatedInventoryDto))
+                } else {
+                    Result.failure(Exception("Error al actualizar inventario: respuesta vacía"))
+                }
+            } else {
+                Result.failure(Exception("Error al actualizar inventario: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    override suspend fun deleteInventory(id: Int): Result<Unit> {
+        return try {
+            val response = apiService.deleteInventory(id)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error al eliminar inventario: ${response.code()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 }
-

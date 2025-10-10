@@ -3,140 +3,107 @@ package com.stoq.StockWise.inventory.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stoq.StockWise.inventory.domain.entities.Inventory
-import com.stoq.StockWise.inventory.domain.services.InventoryDomainService
-import com.stoq.StockWise.shared.domain.events.EventBus
-import com.stoq.StockWise.shared.domain.events.LoginSuccessEvent
-import com.stoq.StockWise.shared.domain.events.RegisterSuccessEvent
+import com.stoq.StockWise.inventory.domain.repositories.InventoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel para manejar el flujo de configuración inicial del inventario.
- * Escucha eventos de login/register y verifica si el usuario necesita configuración.
+ * ViewModel para la configuración inicial del inventario
+ * 
+ * Maneja el estado y la lógica para la creación del primer inventario
+ * y la configuración inicial del usuario.
  */
 class InventorySetupViewModel(
-    private val inventoryDomainService: InventoryDomainService
+    private val inventoryRepository: InventoryRepository
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(InventorySetupUiState())
     val uiState: StateFlow<InventorySetupUiState> = _uiState.asStateFlow()
     
     init {
-        // Escuchar eventos de autenticación
-        viewModelScope.launch {
-            EventBus.events.collect { event ->
-                when (event) {
-                    is LoginSuccessEvent -> handleLoginSuccess(event.userId)
-                    is RegisterSuccessEvent -> handleRegisterSuccess(event.userId)
-                    else -> { /* Otros eventos no relevantes */ }
-                }
-            }
-        }
+        checkInventorySetupStatus()
     }
     
     /**
-     * Maneja el evento de login exitoso
+     * Verifica el estado actual de configuración del inventario
      */
-    private fun handleLoginSuccess(userId: Int) {
+    private fun checkInventorySetupStatus() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             
-            inventoryDomainService.ensureUserHasInventory(userId)
+            inventoryRepository.getMainInventory()
                 .onSuccess { inventory ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        currentUserId = userId,
-                        userInventory = inventory,
-                        needsInventorySetup = false,
-                        needsFirstProduct = false
+                        needsInventorySetup = inventory == null,
+                        needsFirstProduct = inventory != null && inventory.isUsable(),
+                        isReady = inventory != null && inventory.isUsable(),
+                        mainInventory = inventory
                     )
                 }
-                .onFailure { error ->
+                .onFailure { exception ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Error al verificar inventario"
+                        errorMessage = exception.message ?: "Error desconocido",
+                        needsInventorySetup = true
                     )
                 }
         }
     }
     
     /**
-     * Maneja el evento de registro exitoso
+     * Crea un nuevo inventario principal
+     * 
+     * @param name Nombre del inventario
+     * @param description Descripción opcional del inventario
      */
-    private fun handleRegisterSuccess(userId: Int) {
+    fun createMainInventory(name: String, description: String? = null) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             
-            inventoryDomainService.needsInventorySetup(userId)
-                .onSuccess { needsSetup ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        currentUserId = userId,
-                        needsInventorySetup = needsSetup,
-                        needsFirstProduct = needsSetup
-                    )
-                }
-                .onFailure { error ->
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = error.message ?: "Error al verificar configuración"
-                    )
-                }
-        }
-    }
-    
-    /**
-     * Crea un inventario para el usuario
-     */
-    fun createInventory(name: String, description: String) {
-        val userId = _uiState.value.currentUserId
-        if (userId == null) {
-            _uiState.value = _uiState.value.copy(
-                errorMessage = "Usuario no autenticado"
-            )
-            return
-        }
-        
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            
-            val inventory = Inventory(
-                userId = userId,
+            val newInventory = Inventory(
+                id = 0, // Será asignado por el servidor
                 name = name,
-                description = description.ifEmpty { null }
+                description = description,
+                userId = 1, // TODO: Obtener del usuario autenticado
+                createdAt = "", // Será asignado por el servidor
+                updatedAt = "" // Será asignado por el servidor
             )
             
-            inventoryDomainService.ensureUserHasInventory(userId)
+            inventoryRepository.createInventory(newInventory)
                 .onSuccess { createdInventory ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        userInventory = createdInventory,
                         needsInventorySetup = false,
-                        needsFirstProduct = true
+                        needsFirstProduct = true,
+                        isReady = false,
+                        mainInventory = createdInventory
                     )
                 }
-                .onFailure { error ->
+                .onFailure { exception ->
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = error.message ?: "Error al crear inventario"
+                        errorMessage = exception.message ?: "Error al crear inventario"
                     )
                 }
         }
     }
     
     /**
-     * Marca que el primer producto ha sido creado o saltado
+     * Completa la configuración del primer producto
+     * Marca que el usuario ya no necesita crear el primer producto
      */
     fun completeFirstProductSetup() {
         _uiState.value = _uiState.value.copy(
-            needsFirstProduct = false
+            needsFirstProduct = false,
+            isReady = true
         )
     }
     
     /**
-     * Limpia el estado de error
+     * Limpia el mensaje de error
      */
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
@@ -148,20 +115,9 @@ class InventorySetupViewModel(
  */
 data class InventorySetupUiState(
     val isLoading: Boolean = false,
-    val currentUserId: Int? = null,
-    val userInventory: Inventory? = null,
-    val needsInventorySetup: Boolean = false,
+    val needsInventorySetup: Boolean = true,
     val needsFirstProduct: Boolean = false,
+    val isReady: Boolean = false,
+    val mainInventory: Inventory? = null,
     val errorMessage: String? = null
-) {
-    /**
-     * Indica si el usuario está listo para usar la aplicación
-     */
-    val isReady: Boolean
-        get() = !isLoading && 
-                currentUserId != null && 
-                userInventory != null && 
-                !needsInventorySetup && 
-                !needsFirstProduct
-}
-
+)

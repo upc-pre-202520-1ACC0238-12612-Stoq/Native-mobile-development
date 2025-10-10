@@ -3,58 +3,64 @@ package com.stoq.StockWise.inventory.domain.repositories
 import com.stoq.StockWise.inventory.domain.entities.Inventory
 
 /**
- * Contrato de repositorio para la entidad Inventory.
- * Define las operaciones de acceso a datos para inventarios.
+ * Contrato del repositorio para la gestión de inventarios
+ * 
+ * Define las operaciones que pueden realizarse sobre los inventarios
+ * sin depender de la implementación específica de persistencia.
  */
 interface InventoryRepository {
     
     /**
-     * Obtiene todos los inventarios de un usuario
-     * @param userId ID del usuario
-     * @return Result con la lista de inventarios
+     * Obtiene todos los inventarios del usuario autenticado
+     * 
+     * @return Result que contiene la lista de inventarios o un error
      */
-    suspend fun getInventoriesByUserId(userId: Int): Result<List<Inventory>>
+    suspend fun getAllInventories(): Result<List<Inventory>>
     
     /**
-     * Obtiene un inventario por su ID
-     * @param inventoryId ID del inventario
-     * @return Result con el inventario o error
+     * Obtiene un inventario específico por su ID
+     * 
+     * @param id ID del inventario a buscar
+     * @return Result que contiene el inventario o un error
      */
-    suspend fun getInventoryById(inventoryId: Int): Result<Inventory>
+    suspend fun getInventoryById(id: Int): Result<Inventory>
+    
+    /**
+     * Obtiene el inventario principal del usuario autenticado
+     * 
+     * @return Result que contiene el inventario principal o un error
+     */
+    suspend fun getMainInventory(): Result<Inventory>
+    
+    /**
+     * Verifica si el usuario autenticado tiene al menos un inventario
+     * 
+     * @param userId ID del usuario a verificar
+     * @return Result que indica si el usuario tiene inventario
+     */
+    suspend fun hasInventory(userId: Int): Result<Boolean>
     
     /**
      * Crea un nuevo inventario
+     * 
      * @param inventory Datos del inventario a crear
-     * @return Result con el inventario creado
+     * @return Result que contiene el inventario creado o un error
      */
     suspend fun createInventory(inventory: Inventory): Result<Inventory>
     
     /**
      * Actualiza un inventario existente
-     * @param inventory Datos del inventario a actualizar
-     * @return Result con el inventario actualizado
+     * 
+     * @param inventory Inventario con los datos actualizados
+     * @return Result que contiene el inventario actualizado o un error
      */
     suspend fun updateInventory(inventory: Inventory): Result<Inventory>
     
     /**
      * Elimina un inventario
-     * @param inventoryId ID del inventario a eliminar
-     * @return Result indicando si la operación fue exitosa
+     * 
+     * @param id ID del inventario a eliminar
+     * @return Result que indica si la operación fue exitosa
      */
-    suspend fun deleteInventory(inventoryId: Int): Result<Unit>
-    
-    /**
-     * Verifica si un usuario tiene al menos un inventario
-     * @param userId ID del usuario
-     * @return Result con true si tiene inventario, false si no
-     */
-    suspend fun hasInventory(userId: Int): Result<Boolean>
-    
-    /**
-     * Obtiene el inventario principal de un usuario (el primero creado)
-     * @param userId ID del usuario
-     * @return Result con el inventario principal o error
-     */
-    suspend fun getMainInventory(userId: Int): Result<Inventory>
+    suspend fun deleteInventory(id: Int): Result<Unit>
 }
-

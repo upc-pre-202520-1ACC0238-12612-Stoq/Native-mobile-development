@@ -25,7 +25,7 @@ class InventoryDomainService(
             
             if (hasInventoryResult.isSuccess && hasInventoryResult.getOrNull() == true) {
                 // Usuario ya tiene inventario, obtener el principal
-                inventoryRepository.getMainInventory(userId)
+                inventoryRepository.getMainInventory()
             } else {
                 // Usuario no tiene inventario, crear uno por defecto
                 createDefaultInventory(userId)
@@ -41,10 +41,14 @@ class InventoryDomainService(
      * @return Result con el inventario creado
      */
     private suspend fun createDefaultInventory(userId: Int): Result<Inventory> {
+        val currentTime = System.currentTimeMillis().toString()
         val defaultInventory = Inventory(
+            id = 0, // Se asignará el ID real en el repositorio
             userId = userId,
             name = "Mi Inventario",
             description = "Inventario principal creado automáticamente",
+            createdAt = currentTime,
+            updatedAt = currentTime,
             isActive = true
         )
         
@@ -62,7 +66,7 @@ class InventoryDomainService(
      */
     suspend fun needsInventorySetup(userId: Int): Result<Boolean> {
         return inventoryRepository.hasInventory(userId)
-            .map { !it }
+            .map { hasInventory -> !hasInventory }
     }
 }
 

@@ -17,7 +17,10 @@ data class ProductUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val searchQuery: String = "",
-    val filteredProducts: List<Product> = emptyList()
+    val filteredProducts: List<Product> = emptyList(),
+    val showAddProductModal: Boolean = false,
+    val isAddingProduct: Boolean = false,
+    val addProductErrorMessage: String? = null
 )
 
 /**
@@ -95,5 +98,83 @@ class ProductViewModel(
      */
     fun refreshProducts() {
         loadProducts()
+    }
+    
+    /**
+     * Muestra el modal de agregar producto
+     */
+    fun showAddProductModal() {
+        uiState = uiState.copy(showAddProductModal = true, addProductErrorMessage = null)
+    }
+    
+    /**
+     * Oculta el modal de agregar producto
+     */
+    fun hideAddProductModal() {
+        uiState = uiState.copy(showAddProductModal = false, addProductErrorMessage = null)
+    }
+    
+    /**
+     * Agrega un nuevo producto
+     */
+    fun addProduct(
+        name: String,
+        description: String?,
+        purchasePrice: Double?,
+        salePrice: Double?,
+        internalNotes: String?
+    ) {
+        viewModelScope.launch {
+            uiState = uiState.copy(isAddingProduct = true, addProductErrorMessage = null)
+            
+            // Crear el producto con los datos proporcionados
+            val newProduct = Product(
+                id = null, // Se asignará en el servidor
+                name = name,
+                description = description,
+                purchasePrice = purchasePrice,
+                salePrice = salePrice,
+                internalNotes = internalNotes,
+                categoryId = null,
+                categoryName = null,
+                unitId = null,
+                unitName = null,
+                unitAbbreviation = null,
+                tags = null
+            )
+            
+            // TODO: Implementar la llamada al repositorio para crear el producto
+            // Por ahora simulamos una operación exitosa
+            try {
+                // Simular delay de red
+                kotlinx.coroutines.delay(1000)
+                
+                // Agregar el producto a la lista local
+                val updatedProducts = uiState.products + newProduct
+                uiState = uiState.copy(
+                    products = updatedProducts,
+                    filteredProducts = updatedProducts,
+                    isAddingProduct = false,
+                    showAddProductModal = false
+                )
+                
+                // Actualizar la búsqueda si hay una consulta activa
+                if (uiState.searchQuery.isNotBlank()) {
+                    filterProducts(uiState.searchQuery)
+                }
+            } catch (e: Exception) {
+                uiState = uiState.copy(
+                    isAddingProduct = false,
+                    addProductErrorMessage = e.message ?: "Error al agregar el producto"
+                )
+            }
+        }
+    }
+    
+    /**
+     * Limpia el mensaje de error del modal de agregar producto
+     */
+    fun clearAddProductError() {
+        uiState = uiState.copy(addProductErrorMessage = null)
     }
 }

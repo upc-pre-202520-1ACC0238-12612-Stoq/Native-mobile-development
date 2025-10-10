@@ -1,38 +1,27 @@
 package com.stoq.StockWise.inventory.domain.entities
 
 /**
- * Agregado principal del bounded context Inventory.
- * Representa un inventario que pertenece a un usuario y contiene productos.
+ * Agregado principal que representa un inventario en el sistema
  * 
- * @param id Identificador único del inventario
- * @param userId ID del propietario del inventario
- * @param name Nombre del inventario
- * @param description Descripción opcional del inventario
- * @param isActive Indica si el inventario está activo
- * @param createdAt Fecha de creación del inventario
- * @param updatedAt Fecha de última actualización
+ * Un inventario es la colección de productos que posee un usuario
+ * y representa el contexto principal para la gestión de stock.
  */
 data class Inventory(
-    val id: Int? = null,
-    val userId: Int,
+    val id: Int,
     val name: String,
-    val description: String? = null,
-    val isActive: Boolean = true,
-    val createdAt: String? = null,
-    val updatedAt: String? = null
+    val description: String?,
+    val userId: Int,
+    val createdAt: String,
+    val updatedAt: String,
+    val isActive: Boolean = true
 ) {
     /**
-     * Valida que el inventario tenga un nombre válido
+     * Verifica si el inventario está activo y puede ser utilizado
      */
-    fun isValid(): Boolean {
-        return name.isNotBlank() && userId > 0
-    }
+    fun isUsable(): Boolean = isActive
     
     /**
      * Obtiene el nombre para mostrar en la UI
      */
-    fun getDisplayName(): String {
-        return name.ifEmpty { "Mi Inventario" }
-    }
+    fun getDisplayName(): String = name.ifBlank { "Inventario sin nombre" }
 }
-

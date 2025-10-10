@@ -141,6 +141,7 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
                 authRepository.logout().fold(
                     onSuccess = { 
                         clearUser()
+                        _uiState.value = _uiState.value.copy(isAuthenticated = false)
                     },
                     onFailure = { error ->
                         _errorMessage.value = "Error al cerrar sesión: ${error.message}"

@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -36,9 +37,11 @@ import com.stoq.StockWise.ui.theme.StockWiseTheme
 @Composable
 fun ProductScreen(
     viewModel: ProductViewModel,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uiState = viewModel.uiState
+    var showMenu by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -66,12 +69,44 @@ fun ProductScreen(
                 }
             },
             actions = {
-                IconButton(onClick = { /* TODO: Implementar menú */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "Menú",
-                        tint = Color(0xFF5D4037)
-                    )
+                Box {
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "Menú",
+                            tint = Color(0xFF5D4037)
+                        )
+                    }
+                    
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                        modifier = Modifier.background(Color.White)
+                    ) {
+                        DropdownMenuItem(
+                            text = { 
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ExitToApp,
+                                        contentDescription = "Cerrar sesión",
+                                        tint = Color(0xFFD32F2F),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Cerrar sesión",
+                                        color = Color(0xFFD32F2F)
+                                    )
+                                }
+                            },
+                            onClick = {
+                                showMenu = false
+                                onLogout()
+                            }
+                        )
+                    }
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
@@ -95,7 +130,7 @@ fun ProductScreen(
             )
             
             FloatingActionButton(
-                onClick = { /* TODO: Implementar agregar producto */ },
+                onClick = { viewModel.showAddProductModal() },
                 containerColor = Color(0xFFD32F2F),
                 modifier = Modifier.size(48.dp)
             ) {
@@ -236,6 +271,17 @@ fun ProductScreen(
                 }
             }
         }
+        
+        // Modal de agregar producto
+        AddProductModal(
+            isVisible = uiState.showAddProductModal,
+            isLoading = uiState.isAddingProduct,
+            errorMessage = uiState.addProductErrorMessage,
+            onDismiss = { viewModel.hideAddProductModal() },
+            onAddProduct = { name, description, purchasePrice, salePrice, internalNotes ->
+                viewModel.addProduct(name, description, purchasePrice, salePrice, internalNotes)
+            }
+        )
     }
 }
 
