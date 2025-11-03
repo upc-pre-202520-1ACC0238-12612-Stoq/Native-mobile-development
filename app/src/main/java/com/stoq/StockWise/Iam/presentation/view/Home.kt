@@ -3,7 +3,7 @@ package com.stoq.StockWise.Iam.presentation.view
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -11,7 +11,8 @@ import com.stoq.StockWise.ui.theme.YellowHighlight
 
 @Composable
 fun HomeScreen(
-    goToLogin: () -> Unit
+    goToLogin: () -> Unit,
+    goToProfile: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -36,22 +37,33 @@ fun HomeScreen(
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 Text(
                     text = "Inicio de sesión exitoso",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
-                
+
+                // Botón para ir al perfil
                 Button(
+                    onClick = goToProfile,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Ver Mi Perfil")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Botón para cerrar sesión
+                OutlinedButton(
                     onClick = goToLogin,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Cerrar sesión")
+                    Text("Cerrar Sesión")
                 }
             }
         }
