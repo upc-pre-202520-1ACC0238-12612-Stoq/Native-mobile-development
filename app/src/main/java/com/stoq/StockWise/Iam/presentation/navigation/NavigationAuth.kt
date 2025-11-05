@@ -13,7 +13,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.stoq.StockWise.Iam.presentation.di.PresentationModule
 import com.stoq.StockWise.Iam.presentation.view.HomeScreen
 import com.stoq.StockWise.Iam.presentation.view.LoginScreen
 import com.stoq.StockWise.Iam.presentation.view.RegisterScreen
@@ -26,16 +25,19 @@ import com.stoq.StockWise.ui.theme.YellowHighlight
 
 @Preview
 @Composable
-fun NavigationAuth() {
+fun NavigationAuth(
+    authViewModel: com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel,
+    modifier: Modifier = Modifier
+) {
     val navController = rememberNavController()
-    val authViewModel = PresentationModule.getAuthViewModel()
     val isLoggedIn = remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        isLoggedIn.value = JwtStorage.getToken() != null
+        // Verificar si el usuario ya está autenticado usando el AuthViewModel
+        isLoggedIn.value = authViewModel.uiState.value.isAuthenticated
     }
 
-    Scaffold(modifier = Modifier.background(YellowHighlight)) { padding ->
+    Scaffold(modifier = modifier.background(YellowHighlight)) { padding ->
         NavHost(
             navController,
             startDestination = if (isLoggedIn.value) "home" else "login",

@@ -14,5 +14,7 @@
 .cxx
 local.properties
 
+.claude
+.cursor
 # Claude Code files
 CLAUDE.md

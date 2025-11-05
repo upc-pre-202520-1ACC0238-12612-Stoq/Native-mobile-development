@@ -1,0 +1,171 @@
+---
+globs: app/src/main/java/com/stoq/StockWise/**/*.*
+alwaysApply: false
+---
+# Estructura de Bounded Contexts - DDD
+
+Cada bounded context en el proyecto debe seguir esta estructura y nomenclatura basada en Domain-Driven Design.
+
+## Nomenclatura de Bounded Contexts
+
+### Nombres de Directorios
+- **Kebab-case** para nombres de bounded contexts
+- **Ejemplos**: `product`, `iam`, `inventory`, `sales`, `customer-management`
+
+### Estructura de Paquetes
+```
+com.stoq.StockWise.{bounded-context}.{layer}.{subpackage}
+```
+
+**Ejemplos**:
+- `com.stoq.StockWise.product.domain.entities`
+- `com.stoq.StockWise.product.infrastructure.api`
+- `com.stoq.StockWise.product.presentation.ui`
+- `com.stoq.StockWise.iam.domain.entities`
+- `com.stoq.StockWise.inventory.domain.repositories`
+
+## Estructura Obligatoria por Bounded Context
+
+```
+{bounded-context}/
+├── domain/
+│   ├── entities/          # Agregados y entidades de dominio
+│   ├── value-objects/     # Objetos de valor
+│   ├── repositories/      # Contratos de repositorio
+│   └── services/          # Servicios de dominio
+├── infrastructure/
+│   ├── api/              # Servicios de API REST
+│   ├── dto/              # Data Transfer Objects
+│   ├── mappers/          # Convertidores DTO ↔ Entidad
+│   ├── repositories/     # Implementaciones de repositorio
+│   └── persistence/      # Implementaciones de persistencia
+└── presentation/
+    ├── ui/               # Pantallas de Compose
+    ├── viewmodels/       # ViewModels con estado
+    └── navigation/       # Navegación específica del contexto
+```
+
+## Conceptos DDD por Capa
+
+### Domain Layer
+- **Agregados**: Entidades principales con identidad única
+- **Entidades**: Objetos con identidad y ciclo de vida
+- **Value Objects**: Objetos inmutables sin identidad
+- **Repositories**: Contratos para acceso a datos
+- **Domain Services**: Lógica de negocio que no pertenece a entidades
+
+### Infrastructure Layer
+- **Repositories**: Implementaciones concretas de contratos de dominio
+- **DTOs**: Objetos para transferencia de datos
+- **Mappers**: Conversión entre capas
+- **API Services**: Servicios externos
+
+### Presentation Layer
+- **ViewModels**: Estado y lógica de presentación
+- **UI Components**: Componentes de interfaz
+- **Navigation**: Navegación específica del contexto
+
+## Nomenclatura de Archivos por Concepto DDD
+
+### Agregados y Entidades
+- **Agregado Principal**: `{AggregateName}.kt` (ej: `Product.kt`)
+- **Entidades Secundarias**: `{EntityName}.kt` (ej: `Tag.kt`)
+- **Value Objects**: `{ValueObjectName}.kt` (ej: `Money.kt`, `Email.kt`)
+
+### Repositorios
+- **Contrato**: `{AggregateName}Repository.kt`
+- **Implementación**: `{AggregateName}RepositoryImpl.kt`
+
+### Servicios
+- **Domain Service**: `{ServiceName}DomainService.kt`
+- **Application Service**: `{ServiceName}ApplicationService.kt`
+
+### DTOs y Mappers
+- **DTO**: `{AggregateName}Dto.kt`
+- **Mapper**: `{AggregateName}Mapper.kt`
+
+### Presentation
+- **Screen**: `{AggregateName}Screen.kt`
+- **ViewModel**: `{AggregateName}ViewModel.kt`
+- **UI State**: `{AggregateName}UiState` (dentro del ViewModel)
+
+## Ejemplos de Bounded Contexts
+
+### Product Bounded Context
+```
+product/
+├── domain/
+│   ├── entities/
+│   │   ├── Product.kt           # Agregado principal
+│   │   └── Tag.kt               # Entidad secundaria
+│   ├── value-objects/
+│   │   ├── Money.kt             # Objeto de valor
+│   │   └── ProductCode.kt       # Objeto de valor
+│   └── repositories/
+│       └── ProductRepository.kt # Contrato
+├── infrastructure/
+│   ├── api/
+│   │   └── ProductApiService.kt
+│   ├── dto/
+│   │   └── ProductDto.kt
+│   ├── mappers/
+│   │   └── ProductMapper.kt
+│   └── repositories/
+│       └── ProductRepositoryImpl.kt
+└── presentation/
+    ├── ui/
+    │   └── ProductScreen.kt
+    └── viewmodels/
+        └── ProductViewModel.kt
+```
+
+### IAM Bounded Context
+```
+iam/
+├── domain/
+│   ├── entities/
+│   │   ├── User.kt              # Agregado principal
+│   │   └── Role.kt              # Entidad secundaria
+│   ├── value-objects/
+│   │   ├── Email.kt             # Objeto de valor
+│   │   └── Password.kt          # Objeto de valor
+│   └── repositories/
+│       └── UserRepository.kt    # Contrato
+├── infrastructure/
+│   ├── api/
+│   │   └── AuthApiService.kt
+│   ├── dto/
+│   │   ├── LoginRequest.kt
+│   │   └── LoginResponse.kt
+│   └── repositories/
+│       └── UserRepositoryImpl.kt
+└── presentation/
+    ├── ui/
+    │   ├── LoginScreen.kt
+    │   └── RegisterScreen.kt
+    └── viewmodels/
+        └── AuthViewModel.kt
+```
+
+## Reglas de Bounded Contexts
+
+### 1. Aislamiento
+- Cada bounded context debe ser independiente
+- No compartir entidades de dominio entre contextos
+- Comunicación solo a través de interfaces bien definidas
+
+### 2. Nomenclatura Consistente
+- Usar la misma estructura en todos los bounded contexts
+- Mantener consistencia en nombres de archivos y paquetes
+- Seguir convenciones de Kotlin y DDD
+
+### 3. Separación de Responsabilidades
+- Domain: Solo lógica de negocio
+- Infrastructure: Solo implementaciones técnicas
+- Presentation: Solo lógica de UI
+
+### 4. Dependencias
+- Domain no depende de ninguna otra capa
+- Infrastructure depende solo de Domain
+- Presentation depende solo de Domain
+- No dependencias circulares entre bounded contexts

@@ -1,9 +1,9 @@
 package com.stoq.StockWise.di
 
-import com.stoq.StockWise.Iam.data.di.DataModule as IamDataModule
-import com.stoq.StockWise.Iam.presentation.di.PresentationModule as IamPresentationModule
-import com.stoq.StockWise.shared.data.local.JwtStorage
-import android.content.Context
+import com.stoq.StockWise.Iam.data.di.dataModule
+import com.stoq.StockWise.Iam.presentation.di.iamPresentationModule
+import com.stoq.StockWise.inventory.presentation.di.inventoryPresentationModule
+import com.stoq.StockWise.product.presentation.di.productPresentationModule
 
 /**
  * Central dependency injection module for the application.
@@ -12,22 +12,24 @@ import android.content.Context
 object AppModule {
     
     /**
-     * Initialize the application DI system.
-     * Must be called before using any dependency injection.
-     */
-    fun initialize(context: Context) {
-        JwtStorage.initialize(context)
-    }
-    
-    /**
      * Get the IAM data module.
      */
-    fun getIamDataModule() = IamDataModule
+    fun getIamDataModule() = dataModule
     
     /**
      * Get the IAM presentation module.
      */
-    fun getIamPresentationModule() = IamPresentationModule
+    fun getIamPresentationModule() = iamPresentationModule
+    
+    /**
+     * Get the Inventory presentation module.
+     */
+    fun getInventoryPresentationModule() = inventoryPresentationModule
+    
+    /**
+     * Get the Product presentation module.
+     */
+    fun getProductPresentationModule() = productPresentationModule
     
     /**
      * Clean up resources when needed.

@@ -5,11 +5,18 @@ import androidx.lifecycle.viewModelScope
 import com.stoq.StockWise.Iam.data.repository.AuthRepository
 import com.stoq.StockWise.Iam.domain.models.User
 import com.stoq.StockWise.Iam.domain.validation.UserValidator
+import com.stoq.StockWise.shared.domain.events.EventBus
+import com.stoq.StockWise.shared.domain.events.LoginSuccessEvent
+import com.stoq.StockWise.shared.domain.events.RegisterSuccessEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(AuthUiState())
+    val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     private val _user = MutableStateFlow(User())
     val user: StateFlow<User> = _user
@@ -56,11 +63,26 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val success = authRepository.login(user)
-                _loginSuccess.value = success
-                if (!success) {
-                    _errorMessage.value = "Invalid credentials. Please check your email and password."
-                }
+                val result = authRepository.login(_user.value)
+                result.fold(
+                    onSuccess = { success ->
+                        _loginSuccess.value = success
+                        if (success) {
+                            // Emitir evento de login exitoso
+                            EventBus.emit(LoginSuccessEvent(
+                                userId = _user.value.id ?: 1, // Por ahora usar ID 1
+                                token = "mock_token_${_user.value.id ?: 1}"
+                            ))
+                            _uiState.value = _uiState.value.copy(isAuthenticated = true)
+                        } else {
+                            _errorMessage.value = "Email o contraseña incorrectos."
+                        }
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Error de autenticación: ${error.message}"
+                        _loginSuccess.value = false
+                    }
+                )
             } catch (e: Exception) {
                 _errorMessage.value = "Authentication error: ${e.message}"
                 _loginSuccess.value = false
@@ -84,11 +106,26 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val success = authRepository.register(user)
-                _registerSuccess.value = success
-                if (!success) {
-                    _errorMessage.value = "Registration failed. Please try again."
-                }
+                val result = authRepository.register(_user.value)
+                result.fold(
+                    onSuccess = { success ->
+                        _registerSuccess.value = success
+                        if (success) {
+                            // Emitir evento de registro exitoso
+                            EventBus.emit(RegisterSuccessEvent(
+                                userId = _user.value.id ?: 1, // Por ahora usar ID 1
+                                token = "mock_token_${_user.value.id ?: 1}"
+                            ))
+                            _uiState.value = _uiState.value.copy(isAuthenticated = true)
+                        } else {
+                            _errorMessage.value = "Error en el registro. Intente nuevamente."
+                        }
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Error de registro: ${error.message}"
+                        _registerSuccess.value = false
+                    }
+                )
             } catch (e: Exception) {
                 _errorMessage.value = "Registration error: ${e.message}"
                 _registerSuccess.value = false
@@ -100,8 +137,19 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     fun logout() {
         viewModelScope.launch {
-            authRepository.logout()
-            clearUser()
+            try {
+                authRepository.logout().fold(
+                    onSuccess = { 
+                        clearUser()
+                        _uiState.value = _uiState.value.copy(isAuthenticated = false)
+                    },
+                    onFailure = { error ->
+                        _errorMessage.value = "Error al cerrar sesión: ${error.message}"
+                    }
+                )
+            } catch (e: Exception) {
+                _errorMessage.value = "Error al cerrar sesión: ${e.message}"
+            }
         }
     }
 
@@ -117,3 +165,12 @@ class AuthViewModel(private val authRepository: AuthRepository) : ViewModel() {
         _errorMessage.value = null
     }
 }
+
+/**
+ * Estado de la UI para autenticación
+ */
+data class AuthUiState(
+    val isAuthenticated: Boolean = false,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+)
