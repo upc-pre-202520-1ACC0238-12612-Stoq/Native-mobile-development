@@ -7,10 +7,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -24,6 +25,7 @@ data class ProductPreview(val name: String, val date: String, val stock: Int)
 fun HomeScreen(
     goToLogin: () -> Unit,
     goToProfile: () -> Unit,
+    goToProducts: () -> Unit,
     modifier: Modifier = Modifier,
     // Lista inyectada desde el ViewModel con productos próximos a vencer.
     productsNearExpiry: List<ProductPreview> = emptyList(),
@@ -47,11 +49,69 @@ fun HomeScreen(
             Image(
                 painter = painterResource(id = R.drawable.logo_stockwise),
                 contentDescription = "Stock Wise Logo",
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier.size(80.dp)
             )
 
-            IconButton(onClick = { /* abrir drawer o menú */ }) {
-                Icon(Icons.Default.Menu, contentDescription = "Menu")
+            Box {
+                var showMenu by remember { mutableStateOf(false) }
+
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(Icons.Default.Menu, contentDescription = "Menu")
+                }
+
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Mi Perfil",
+                                    tint = com.stoq.StockWise.ui.theme.OrangePrimary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Mi Perfil",
+                                    color = com.stoq.StockWise.ui.theme.OrangePrimary
+                                )
+                            }
+                        },
+                        onClick = {
+                            showMenu = false
+                            goToProfile()
+                        }
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                                    contentDescription = "Cerrar Sesión",
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Cerrar Sesión",
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        onClick = {
+                            showMenu = false
+                            goToLogin()
+                        }
+                    )
+                }
             }
         }
 
@@ -79,28 +139,39 @@ fun HomeScreen(
         // Botones principales
         Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Button(
-                onClick = { /* navegar a Agregar Productos */ },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                onClick = { goToProducts() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = com.stoq.StockWise.ui.theme.RedAccent)
             ) {
                 Text(text = "Agregar Productos")
             }
 
             Button(
                 onClick = { /* navegar a Kits Productos */ },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = com.stoq.StockWise.ui.theme.OrangePrimary)
             ) {
                 Text(text = "Kits Productos")
             }
 
             Button(
                 onClick = { /* navegar a Devolución Productos */ },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = com.stoq.StockWise.ui.theme.OrangePrimary)
             ) {
                 Text(text = "Devolución Productos")
             }
+
+
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -122,15 +193,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Botones inferiores de sesión / perfil
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = goToLogin, modifier = Modifier.weight(1f)) {
-                Text("Cerrar Sesión")
-            }
-            Button(onClick = goToProfile, modifier = Modifier.weight(1f)) {
-                Text("Mi Perfil")
-            }
-        }
+
     }
 }
 

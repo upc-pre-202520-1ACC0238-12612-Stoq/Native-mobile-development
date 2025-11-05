@@ -99,7 +99,8 @@ private fun NavGraphBuilder.homeScreen(
             },
             goToProfile = {
                 navController.navigate("profile")
-            }
+            },
+            goToProducts = { /* no-op inside auth nav; top-level host handles product screen */ }
         )
     }
 }

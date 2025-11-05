@@ -14,6 +14,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stoq.StockWise.Iam.presentation.navigation.NavigationAuth
 import com.stoq.StockWise.Iam.presentation.view.HomeScreen
+import com.stoq.StockWise.Iam.presentation.view.ProfileScreen
+import com.stoq.StockWise.Iam.presentation.view.SettingsScreen
 import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.inventory.presentation.ui.CreateFirstProductScreen
 import com.stoq.StockWise.inventory.presentation.ui.CreateInventoryScreen
@@ -108,8 +110,24 @@ fun MainApp() {
                         authViewModel.logout()
                         navController.navigate("auth") { popUpTo(0) { inclusive = true } }
                     },
-                    goToProfile = { navController.navigate("main") },
+                    goToProfile = { navController.navigate("profile") },
+                    goToProducts = { navController.navigate("main") },
                     modifier = Modifier.padding(innerPadding)
+                )
+            }
+
+            // Pantalla de perfil
+            composable("profile") {
+                ProfileScreen(
+                    onBack = { navController.popBackStack() },
+                    onSettings = { navController.navigate("settings") }
+                )
+            }
+
+            // Pantalla de ajustes
+            composable("settings") {
+                SettingsScreen(
+                    onBack = { navController.popBackStack() }
                 )
             }
 

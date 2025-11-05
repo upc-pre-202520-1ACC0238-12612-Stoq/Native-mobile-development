@@ -1,17 +1,17 @@
 package com.stoq.StockWise.product.presentation.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.res.painterResource
+import com.stoq.StockWise.R
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -54,17 +54,10 @@ fun ProductScreen(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Stock",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFE65100)
-                    )
-                    Text(
-                        text = "Wise",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFF5D4037)
+                    Image(
+                        painter = painterResource(id = R.drawable.logo_stockwise),
+                        contentDescription = "Stock Wise Logo",
+                        modifier = Modifier.size(80.dp)
                     )
                 }
             },
@@ -83,6 +76,54 @@ fun ProductScreen(
                         onDismissRequest = { showMenu = false },
                         modifier = Modifier.background(Color.White)
                     ) {
+                        DropdownMenuItem(
+                            text = { 
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Kits Productos",
+                                        tint = Color(0xFF5D4037),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Kits Productos",
+                                        color = Color(0xFF5D4037)
+                                    )
+                                }
+                            },
+                            onClick = {
+                                showMenu = false
+                                // TODO: Navegar a Kits Productos
+                            }
+                        )
+                        
+                        DropdownMenuItem(
+                            text = { 
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = "Devolución Productos",
+                                        tint = Color(0xFF5D4037),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Devolución Productos",
+                                        color = Color(0xFF5D4037)
+                                    )
+                                }
+                            },
+                            onClick = {
+                                showMenu = false
+                                // TODO: Navegar a Devolución Productos
+                            }
+                        )
+
                         DropdownMenuItem(
                             text = { 
                                 Row(
