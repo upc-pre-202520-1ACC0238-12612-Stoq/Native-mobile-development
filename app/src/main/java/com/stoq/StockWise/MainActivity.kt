@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stoq.StockWise.Iam.presentation.navigation.NavigationAuth
+import com.stoq.StockWise.Iam.presentation.view.HomeScreen
 import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.inventory.presentation.ui.CreateFirstProductScreen
 import com.stoq.StockWise.inventory.presentation.ui.CreateInventoryScreen
@@ -58,7 +59,13 @@ fun MainApp() {
             composable("auth") {
                 NavigationAuth(
                     authViewModel = authViewModel,
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.padding(innerPadding),
+                    onAuthSuccess = {
+                        // Navegar al home principal del host y eliminar la pila de auth
+                        navController.navigate("home") {
+                            popUpTo("auth") { inclusive = true }
+                        }
+                    }
                 )
             }
             
@@ -94,10 +101,22 @@ fun MainApp() {
                 )
             }
             
-            // Pantalla principal de productos
+            // Pantalla principal (Home/dashboard)
+            composable("home") {
+                HomeScreen(
+                    goToLogin = {
+                        authViewModel.logout()
+                        navController.navigate("auth") { popUpTo(0) { inclusive = true } }
+                    },
+                    goToProfile = { navController.navigate("main") },
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+
+            // Pantalla principal de productos (Inventario)
             composable("main") {
                 val productViewModel: ProductViewModel = koinViewModel()
-                
+
                 ProductScreen(
                     viewModel = productViewModel,
                     onLogout = {

@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,15 +18,13 @@ import com.stoq.StockWise.Iam.presentation.view.RegisterScreen
 import com.stoq.StockWise.Iam.presentation.view.ProfileScreen
 import android.widget.Toast
 import com.stoq.StockWise.Iam.presentation.view.SettingsScreen
-import com.stoq.StockWise.shared.data.local.JwtStorage
-import com.stoq.StockWise.shared.data.local.ProfileStorage
 import com.stoq.StockWise.ui.theme.YellowHighlight
 
-@Preview
 @Composable
 fun NavigationAuth(
     authViewModel: com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAuthSuccess: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val isLoggedIn = remember { mutableStateOf(false) }
@@ -43,8 +40,8 @@ fun NavigationAuth(
             startDestination = if (isLoggedIn.value) "home" else "login",
             modifier = Modifier.padding(padding)
         ) {
-            loginScreen(authViewModel, navController)
-            registerScreen(authViewModel, navController)
+            loginScreen(authViewModel, navController, onAuthSuccess)
+            registerScreen(authViewModel, navController, onAuthSuccess)
             homeScreen(navController)
             profileScreen(navController)
             settingsScreen(navController)
@@ -54,24 +51,25 @@ fun NavigationAuth(
 
 private fun NavGraphBuilder.loginScreen(
     authViewModel: com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel,
-    navController: androidx.navigation.NavHostController
+    navController: androidx.navigation.NavHostController,
+    onAuthSuccess: () -> Unit
 ) {
     composable("login") {
         LoginScreen(
             authViewModel = authViewModel,
             goToRegister = { navController.navigate("register") },
-            onLoginSuccess = {
-                navController.navigate("home") {
-                    popUpTo(0) { inclusive = true }
+                onLoginSuccess = {
+                    // Informar al host (MainActivity) que la autenticación fue exitosa
+                    onAuthSuccess()
                 }
-            }
         )
     }
 }
 
 private fun NavGraphBuilder.registerScreen(
     authViewModel: com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel,
-    navController: androidx.navigation.NavHostController
+    navController: androidx.navigation.NavHostController,
+    onAuthSuccess: () -> Unit
 ) {
     composable("register") {
         RegisterScreen(
@@ -81,11 +79,10 @@ private fun NavGraphBuilder.registerScreen(
                     popUpTo("register") { inclusive = true }
                 }
             },
-            onRegisterSuccess = {
-                navController.navigate("home") {
-                    popUpTo(0) { inclusive = true }
+                onRegisterSuccess = {
+                    // Informar al host (MainActivity) que la autenticación fue exitosa
+                    onAuthSuccess()
                 }
-            }
         )
     }
 }
