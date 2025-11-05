@@ -8,8 +8,8 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val networkModule = module {
-    single<HttpClient> { BaseApiService.createHttpClient() }
     single<JwtRepository> { JwtRepositoryImpl(androidContext()) }
+    single<HttpClient> { BaseApiService.createHttpClient(get<JwtRepository>()) }
 }
 
 /**
@@ -29,11 +29,12 @@ object NetworkModule {
     }
     
     /**
-     * Obtiene el HttpClient configurado.
+     * Obtiene el HttpClient configurado con autenticación JWT.
      * @return HttpClient configurado
      */
     fun getHttpClient(): HttpClient {
-        return BaseApiService.createHttpClient()
+        val jwtRepository = getJwtRepository()
+        return BaseApiService.createHttpClient(jwtRepository)
     }
     
     /**

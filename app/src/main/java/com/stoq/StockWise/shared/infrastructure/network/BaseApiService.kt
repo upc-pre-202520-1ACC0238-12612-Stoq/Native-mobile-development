@@ -1,5 +1,6 @@
 package com.stoq.StockWise.shared.infrastructure.network
 
+import com.stoq.StockWise.shared.domain.repositories.JwtRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
@@ -17,10 +18,11 @@ import kotlinx.serialization.json.Json
 object BaseApiService {
     
     /**
-     * Crea un HttpClient configurado con serialización JSON y logging.
-     * @return HttpClient configurado
+     * Crea un HttpClient configurado con serialización JSON, logging y autenticación JWT.
+     * @param jwtRepository Repositorio JWT para obtener el token de autenticación
+     * @return HttpClient configurado con el plugin de autenticación
      */
-    fun createHttpClient(): HttpClient {
+    fun createHttpClient(jwtRepository: JwtRepository): HttpClient {
         return HttpClient(CIO) {
             install(ContentNegotiation) {
                 json(Json {
@@ -40,6 +42,9 @@ object BaseApiService {
                     }
                 }
                 level = LogLevel.ALL
+            }
+            install(AuthTokenPlugin) {
+                this.jwtRepository = jwtRepository
             }
         }
     }
