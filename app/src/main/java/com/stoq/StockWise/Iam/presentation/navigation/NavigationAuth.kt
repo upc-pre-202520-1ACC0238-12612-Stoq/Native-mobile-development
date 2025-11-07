@@ -16,6 +16,8 @@ import com.stoq.StockWise.Iam.presentation.view.HomeScreen
 import com.stoq.StockWise.Iam.presentation.view.LoginScreen
 import com.stoq.StockWise.Iam.presentation.view.RegisterScreen
 import com.stoq.StockWise.Iam.presentation.view.ProfileScreen
+import com.stoq.StockWise.inventory.presentation.ui.CreateInventoryScreen
+import com.stoq.StockWise.inventory.presentation.ui.SedesMapScreen
 import android.widget.Toast
 import com.stoq.StockWise.Iam.presentation.view.SettingsScreen
 import com.stoq.StockWise.ui.theme.YellowHighlight
@@ -45,6 +47,8 @@ fun NavigationAuth(
             homeScreen(navController)
             profileScreen(navController)
             settingsScreen(navController)
+            createInventoryScreen(navController)
+            sedesMapScreen(navController)
         }
     }
 }
@@ -58,10 +62,10 @@ private fun NavGraphBuilder.loginScreen(
         LoginScreen(
             authViewModel = authViewModel,
             goToRegister = { navController.navigate("register") },
-                onLoginSuccess = {
-                    // Informar al host (MainActivity) que la autenticación fue exitosa
-                    onAuthSuccess()
-                }
+            onLoginSuccess = {
+                // Informar al host (MainActivity) que la autenticación fue exitosa
+                onAuthSuccess()
+            }
         )
     }
 }
@@ -79,10 +83,10 @@ private fun NavGraphBuilder.registerScreen(
                     popUpTo("register") { inclusive = true }
                 }
             },
-                onRegisterSuccess = {
-                    // Informar al host (MainActivity) que la autenticación fue exitosa
-                    onAuthSuccess()
-                }
+            onRegisterSuccess = {
+                // Informar al host (MainActivity) que la autenticación fue exitosa
+                onAuthSuccess()
+            }
         )
     }
 }
@@ -100,7 +104,17 @@ private fun NavGraphBuilder.homeScreen(
             goToProfile = {
                 navController.navigate("profile")
             },
-            goToProducts = { /* no-op inside auth nav; top-level host handles product screen */ }
+            goToProducts = {
+                // Aquí puedes navegar a productos cuando lo implementes
+                Toast.makeText(
+                    navController.context,
+                    "Funcionalidad de productos próximamente",
+                    Toast.LENGTH_SHORT
+                ).show()
+            },
+            goToCreateInventory = {
+                navController.navigate("createInventory")
+            }
         )
     }
 }
@@ -128,6 +142,34 @@ private fun NavGraphBuilder.settingsScreen(
 ) {
     composable("settings") {
         SettingsScreen(
+            onBack = { navController.popBackStack() }
+        )
+    }
+}
+
+private fun NavGraphBuilder.createInventoryScreen(
+    navController: androidx.navigation.NavHostController
+) {
+    composable("createInventory") {
+        CreateInventoryScreen(
+            onInventoryCreated = {
+                // Después de crear inventario, volver al home
+                navController.navigate("home") {
+                    popUpTo("createInventory") { inclusive = true }
+                }
+            },
+            onShowBranchesMap = {
+                navController.navigate("sedesMap")
+            }
+        )
+    }
+}
+
+private fun NavGraphBuilder.sedesMapScreen(
+    navController: androidx.navigation.NavHostController
+) {
+    composable("sedesMap") {
+        SedesMapScreen(
             onBack = { navController.popBackStack() }
         )
     }

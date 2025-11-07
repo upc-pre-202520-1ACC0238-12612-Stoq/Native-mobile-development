@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
@@ -18,6 +19,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.stoq.StockWise.ui.theme.YellowHighlight
 import com.stoq.StockWise.R
+import com.stoq.StockWise.ui.theme.OrangePrimary
+import com.stoq.StockWise.ui.theme.RedAccent
 
 data class ProductPreview(val name: String, val date: String, val stock: Int)
 
@@ -26,6 +29,7 @@ fun HomeScreen(
     goToLogin: () -> Unit,
     goToProfile: () -> Unit,
     goToProducts: () -> Unit,
+    goToCreateInventory: () -> Unit,
     modifier: Modifier = Modifier,
     // Lista inyectada desde el ViewModel con productos próximos a vencer.
     productsNearExpiry: List<ProductPreview> = emptyList(),
@@ -72,13 +76,13 @@ fun HomeScreen(
                                 Icon(
                                     imageVector = Icons.Default.Person,
                                     contentDescription = "Mi Perfil",
-                                    tint = com.stoq.StockWise.ui.theme.OrangePrimary,
+                                    tint = OrangePrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Mi Perfil",
-                                    color = com.stoq.StockWise.ui.theme.OrangePrimary
+                                    color = OrangePrimary
                                 )
                             }
                         },
@@ -117,16 +121,40 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Tarjetas resumen (2x2)
+        // Tarjetas resumen (2x2) - Todas con íconos
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SmallStatCard(title = "Total Productos", value = "500", modifier = Modifier.weight(1f))
-                SmallStatCard(title = "Fecha Proveedor", value = "00/00/00", modifier = Modifier.weight(1f))
+                SmallStatCard(
+                    title = "Total Productos",
+                    value = "500",
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Navegar a lista de productos */ },
+                    iconResId = R.drawable.ic_products
+                )
+                SmallStatCard(
+                    title = "Fecha Proveedor",
+                    value = "00/00/00",
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Navegar a proveedores */ },
+                    iconResId = R.drawable.ic_calendar
+                )
             }
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                SmallStatCard(title = "Historial\nMovimientos", value = "", modifier = Modifier.weight(1f))
-                SmallStatCard(title = "Inventario", value = "", modifier = Modifier.weight(1f))
+                SmallStatCard(
+                    title = "Historial\nMovimientos",
+                    value = "",
+                    modifier = Modifier.weight(1f),
+                    onClick = { /* Navegar a historial */ },
+                    iconResId = R.drawable.ic_history
+                )
+                SmallStatCard(
+                    title = "Inventario",
+                    value = "",
+                    modifier = Modifier.weight(1f),
+                    onClick = goToCreateInventory,
+                    iconResId = R.drawable.ic_inventory
+                )
             }
         }
 
@@ -143,8 +171,8 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = com.stoq.StockWise.ui.theme.RedAccent)
+                shape = RoundedCornerShape(28.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = RedAccent)
             ) {
                 Text(text = "Agregar Productos")
             }
@@ -154,8 +182,8 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = com.stoq.StockWise.ui.theme.OrangePrimary)
+                shape = RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary)
             ) {
                 Text(text = "Kits Productos")
             }
@@ -165,13 +193,11 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = com.stoq.StockWise.ui.theme.OrangePrimary)
+                shape = RoundedCornerShape(24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary)
             ) {
                 Text(text = "Devolución Productos")
             }
-
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -192,22 +218,56 @@ fun HomeScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
-
-
     }
 }
 
 @Composable
-private fun SmallStatCard(title: String, value: String, modifier: Modifier = Modifier) {
+private fun SmallStatCard(
+    title: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+    iconResId: Int? = null
+) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = onClick
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(text = title, style = MaterialTheme.typography.bodyMedium)
-            if (value.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        // Disposición horizontal: ícono a la izquierda, texto a la derecha
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Ícono a la izquierda
+            iconResId?.let {
+                Image(
+                    painter = painterResource(id = it),
+                    contentDescription = title,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            }
+
+            // Texto a la derecha
+            Column(
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                if (value.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }
@@ -219,7 +279,8 @@ private fun ProductCard(product: ProductPreview, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        onClick = onClick
     ) {
         Row(modifier = Modifier
             .padding(12.dp)

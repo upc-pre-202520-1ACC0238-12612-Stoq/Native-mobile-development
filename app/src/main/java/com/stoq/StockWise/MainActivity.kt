@@ -19,6 +19,7 @@ import com.stoq.StockWise.Iam.presentation.view.SettingsScreen
 import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.inventory.presentation.ui.CreateFirstProductScreen
 import com.stoq.StockWise.inventory.presentation.ui.CreateInventoryScreen
+import com.stoq.StockWise.inventory.presentation.ui.SedesMapScreen
 import com.stoq.StockWise.inventory.presentation.viewmodels.InventorySetupViewModel
 import com.stoq.StockWise.inventory.presentation.viewmodels.InventorySetupUiState
 import com.stoq.StockWise.product.presentation.ui.ProductScreen
@@ -27,11 +28,11 @@ import com.stoq.StockWise.ui.theme.StockWiseTheme
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         setContent {
             StockWiseTheme {
                 MainApp()
@@ -43,25 +44,26 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainApp() {
     val navController = rememberNavController()
-    
+
     // ViewModels - Usar Koin para inyección de dependencias
     val authViewModel: AuthViewModel = koinViewModel()
     val inventorySetupViewModel: InventorySetupViewModel = koinViewModel()
-    
+
     // Observar estado de autenticación
     val authState by authViewModel.uiState.collectAsState()
     val inventorySetupState by inventorySetupViewModel.uiState.collectAsState()
-    
+
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = determineStartDestination(authState, inventorySetupState)
+            startDestination = determineStartDestination(authState, inventorySetupState),
+            modifier = Modifier.padding(innerPadding)
         ) {
             // Pantalla de autenticación
             composable("auth") {
                 NavigationAuth(
                     authViewModel = authViewModel,
-                    modifier = Modifier.padding(innerPadding),
+                    modifier = Modifier.fillMaxSize(),
                     onAuthSuccess = {
                         // Navegar al home principal del host y eliminar la pila de auth
                         navController.navigate("home") {
@@ -70,7 +72,14 @@ fun MainApp() {
                     }
                 )
             }
-            
+
+            // Pantalla de mapa de sedes
+            composable("branches_map") {
+                SedesMapScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
             // Pantalla de creación de inventario
             composable("create_inventory") {
                 CreateInventoryScreen(
@@ -80,10 +89,11 @@ fun MainApp() {
                             popUpTo("create_inventory") { inclusive = true }
                         }
                     },
-                    modifier = Modifier.padding(innerPadding)
+                    onShowBranchesMap = { navController.navigate("branches_map") },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
-            
+
             // Pantalla de creación del primer producto
             composable("create_first_product") {
                 CreateFirstProductScreen(
@@ -99,20 +109,23 @@ fun MainApp() {
                             popUpTo("create_first_product") { inclusive = true }
                         }
                     },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.fillMaxSize()
                 )
             }
-            
+
             // Pantalla principal (Home/dashboard)
             composable("home") {
                 HomeScreen(
                     goToLogin = {
                         authViewModel.logout()
-                        navController.navigate("auth") { popUpTo(0) { inclusive = true } }
+                        navController.navigate("auth") {
+                            popUpTo(0) { inclusive = true }
+                        }
                     },
                     goToProfile = { navController.navigate("profile") },
                     goToProducts = { navController.navigate("main") },
-                    modifier = Modifier.padding(innerPadding)
+                    goToCreateInventory = { navController.navigate("create_inventory") }, // ← AGREGADO
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
@@ -143,7 +156,7 @@ fun MainApp() {
                             popUpTo(0) { inclusive = true }
                         }
                     },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -161,16 +174,16 @@ fun determineStartDestination(
     return when {
         // Usuario no autenticado
         !authState.isAuthenticated -> "auth"
-        
+
         // Usuario autenticado pero necesita crear inventario
         inventorySetupState.needsInventorySetup -> "create_inventory"
-        
+
         // Usuario autenticado, tiene inventario pero necesita crear primer producto
         inventorySetupState.needsFirstProduct -> "create_first_product"
-        
+
         // Usuario listo para usar la aplicación
         inventorySetupState.isReady -> "main"
-        
+
         // Estado de carga o error, mostrar pantalla principal
         else -> "main"
     }

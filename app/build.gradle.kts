@@ -139,6 +139,7 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     //implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -146,6 +147,11 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Google Maps
+    implementation(libs.google.maps.compose)
+    implementation(libs.google.play.services.maps)
+    implementation(libs.google.play.services.location)
 }
 
 // Tarea personalizada para verificar compatibilidad con 16 KB
