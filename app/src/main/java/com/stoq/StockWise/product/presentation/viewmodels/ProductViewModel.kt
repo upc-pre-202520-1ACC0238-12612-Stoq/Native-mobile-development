@@ -24,7 +24,7 @@ data class ProductUiState(
 )
 
 /**
- * ViewModel para manejar el estado de la pantalla de productos
+ * ViewModel para manejar el estado de  la pantalla de productos
  */
 class ProductViewModel(
     private val productRepository: ProductRepository
@@ -36,10 +36,7 @@ class ProductViewModel(
     init {
         loadProducts()
     }
-    
-    /**
-     * Carga todos los productos desde la API
-     */
+
     fun loadProducts() {
         viewModelScope.launch {
             uiState = uiState.copy(isLoading = true, errorMessage = null)

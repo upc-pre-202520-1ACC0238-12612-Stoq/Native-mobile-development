@@ -141,6 +141,20 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // --- ML Kit (Image Labeling API) ---
+    implementation("com.google.mlkit:image-labeling:17.0.8")
+// Para compatibilidad con InputImage y tareas asíncronas
+    implementation("com.google.mlkit:vision-common:17.3.0")
+// --- Corrutinas para await() ---
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+// --- (Opcional) CameraX si planeas mejorar el flujo luego ---
+    implementation("androidx.camera:camera-camera2:1.4.0")
+    implementation("androidx.camera:camera-lifecycle:1.4.0")
+    implementation("androidx.camera:camera-view:1.4.0")
+
+    // Íconos extendidos de Compose (necesario para CameraAlt)
+    implementation("androidx.compose.material:material-icons-extended")
 }
 
 // Tarea personalizada para verificar compatibilidad con 16 KB
