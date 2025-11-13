@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import com.stoq.StockWise.Iam.presentation.navigation.NavigationAuth
 import com.stoq.StockWise.shared.data.local.JwtStorage
 import com.stoq.StockWise.ui.theme.StockWiseTheme
+import org.koin.androidx.compose.koinViewModel
+import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,7 +18,8 @@ class MainActivity : ComponentActivity() {
         
         setContent {
             StockWiseTheme {
-                NavigationAuth()
+                val authViewModel: AuthViewModel = koinViewModel()
+                NavigationAuth(authViewModel = authViewModel)
             }
         }
     }

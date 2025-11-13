@@ -1,5 +1,9 @@
 package com.stoq.StockWise.inventory.infrastructure.repositories
 
+import com.stoq.StockWise.inventory.domain.models.LowStockAlert
+import com.stoq.StockWise.inventory.domain.models.StockItem
+import com.stoq.StockWise.inventory.domain.models.StockMovement
+import com.stoq.StockWise.inventory.domain.repository.InventoryRepository as StockInventoryRepository
 import com.stoq.StockWise.inventory.domain.entities.Inventory
 import com.stoq.StockWise.inventory.domain.repositories.InventoryRepository
 import com.stoq.StockWise.inventory.infrastructure.api.InventoryApiService
@@ -13,7 +17,7 @@ import com.stoq.StockWise.inventory.infrastructure.mappers.InventoryMapper
  */
 class InventoryRepositoryImpl(
     private val apiService: InventoryApiService
-) : InventoryRepository {
+) : InventoryRepository, StockInventoryRepository {
     
     override suspend fun getAllInventories(): Result<List<Inventory>> {
         return try {
@@ -128,5 +132,40 @@ class InventoryRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override suspend fun getCurrentStock(productId: String): StockItem? {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateStock(
+        stockItemId: String,
+        newQuantity: Int
+    ): Result<StockItem> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getStockMovements(stockItemId: String): List<StockMovement> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun saveStockMovement(movement: StockMovement): Result<StockMovement> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getLowStockAlerts(): List<LowStockAlert> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getAllStockItems(): List<StockItem> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun addStockItem(stockItem: StockItem): Result<StockItem> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteStockItem(stockItemId: String): Result<Unit> {
+        TODO("Not yet implemented")
     }
 }

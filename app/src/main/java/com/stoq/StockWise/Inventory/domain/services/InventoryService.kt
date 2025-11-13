@@ -1,7 +1,7 @@
-package com.stoq.StockWise.Inventory.domain.services
+package com.stoq.StockWise.inventory.domain.services
 
-import com.stoq.StockWise.Inventory.domain.models.*
-import com.stoq.StockWise.Inventory.domain.repository.InventoryRepository
+import com.stoq.StockWise.inventory.domain.models.*
+import com.stoq.StockWise.inventory.domain.repository.InventoryRepository
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 

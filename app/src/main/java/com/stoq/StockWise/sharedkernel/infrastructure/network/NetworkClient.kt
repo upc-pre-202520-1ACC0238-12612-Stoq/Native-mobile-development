@@ -1,6 +1,7 @@
 package com.stoq.StockWise.sharedkernel.infrastructure.network
 
 import com.stoq.StockWise.product.infrastructure.api.ProductApiService
+import com.stoq.StockWise.shared.infrastructure.network.ApiConfig
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit

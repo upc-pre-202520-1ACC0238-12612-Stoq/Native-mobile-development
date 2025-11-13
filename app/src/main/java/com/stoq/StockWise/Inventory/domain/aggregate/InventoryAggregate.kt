@@ -1,6 +1,6 @@
-package com.stoq.StockWise.Inventory.domain.aggregate
+package com.stoq.StockWise.inventory.domain.aggregate
 
-import com.stoq.StockWise.Inventory.domain.models.*
+import com.stoq.StockWise.inventory.domain.models.*
 import com.stoq.StockWise.ProductCatalog.domain.models.Product
 import java.time.LocalDateTime
 

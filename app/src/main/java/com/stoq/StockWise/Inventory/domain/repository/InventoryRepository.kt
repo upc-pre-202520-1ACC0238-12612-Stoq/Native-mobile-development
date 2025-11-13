@@ -1,6 +1,6 @@
-package com.stoq.StockWise.Inventory.domain.repository
+package com.stoq.StockWise.inventory.domain.repository
 
-import com.stoq.StockWise.Inventory.domain.models.*
+import com.stoq.StockWise.inventory.domain.models.*
 
 interface InventoryRepository {
     suspend fun getCurrentStock(productId: String): StockItem?

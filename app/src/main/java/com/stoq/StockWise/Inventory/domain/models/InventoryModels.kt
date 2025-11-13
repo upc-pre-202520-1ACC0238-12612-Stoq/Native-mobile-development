@@ -1,4 +1,4 @@
-package com.stoq.StockWise.Inventory.domain.models
+package com.stoq.StockWise.inventory.domain.models
 
 import com.stoq.StockWise.ProductCatalog.domain.models.Product
 
