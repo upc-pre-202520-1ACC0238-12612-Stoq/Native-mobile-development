@@ -1,5 +1,6 @@
 package com.stoq.StockWise.product.presentation.ui
 
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -29,14 +30,14 @@ import com.stoq.StockWise.product.domain.entities.Tag
 import com.stoq.StockWise.product.presentation.viewmodels.ProductUiState
 import com.stoq.StockWise.product.presentation.viewmodels.ProductViewModel
 import com.stoq.StockWise.ui.theme.StockWiseTheme
+import androidx.navigation.NavHostController
 
-/**
- * Pantalla principal de productos que replica el diseño de la imagen
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductScreen(
     viewModel: ProductViewModel,
+    navController: NavHostController,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -114,33 +115,6 @@ fun ProductScreen(
             )
         )
 
-        // Título y botón agregar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Agregar Producto",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF3E2723)
-            )
-            
-            FloatingActionButton(
-                onClick = { viewModel.showAddProductModal() },
-                containerColor = Color(0xFFD32F2F),
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar producto",
-                    tint = Color.White
-                )
-            }
-        }
 
         // Barra de búsqueda y filtro
         Row(
@@ -149,6 +123,54 @@ fun ProductScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
+// Título y botones agregar / cámara
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Agregar Producto",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF3E2723)
+                )
+
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    // Botón de cámara (Plan D)
+                    FloatingActionButton(
+                        onClick = {
+                            navController.navigate("scan_product")
+                        },
+                        containerColor = Color(0xFF5D4037), // marrón oscuro para diferenciarlo
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = "Escanear producto",
+                            tint = Color.White
+                        )
+                    }
+
+                    // Botón de agregar producto (ya existente)
+                    FloatingActionButton(
+                        onClick = { viewModel.showAddProductModal() },
+                        containerColor = Color(0xFFD32F2F),
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Agregar producto",
+                            tint = Color.White
+                        )
+                    }
+                }
+            }
+
+            
             // Barra de búsqueda
             Box(
                 modifier = Modifier

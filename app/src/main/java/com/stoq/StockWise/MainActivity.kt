@@ -4,22 +4,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.stoq.StockWise.Iam.presentation.navigation.NavigationAuth
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
+import com.stoq.StockWise.product.presentation.ui.ProductNavigation
 import com.stoq.StockWise.shared.data.local.JwtStorage
 import com.stoq.StockWise.ui.theme.StockWiseTheme
-import org.koin.androidx.compose.koinViewModel
-import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         JwtStorage.initialize(this)
-        
+
         setContent {
             StockWiseTheme {
-                val authViewModel: AuthViewModel = koinViewModel()
-                NavigationAuth(authViewModel = authViewModel)
+                val navController = rememberNavController()
+
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    ProductNavigation(
+                        navController = navController,
+                        onLogout = { }
+                    )
+                }
             }
         }
     }
