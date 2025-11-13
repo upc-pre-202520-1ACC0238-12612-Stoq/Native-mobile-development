@@ -3,12 +3,12 @@ package com.stoq.StockWise
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Scaffold
-import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.stoq.StockWise.product.presentation.ui.ProductNavigation
+import androidx.activity.enableEdgeToEdge
+import com.stoq.StockWise.Iam.presentation.navigation.authNavigation
+import com.stoq.StockWise.Iam.presentation.viewmodels.AuthViewModel
 import com.stoq.StockWise.shared.data.local.JwtStorage
 import com.stoq.StockWise.ui.theme.StockWiseTheme
 
@@ -22,12 +22,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             StockWiseTheme {
                 val navController = rememberNavController()
+                val authViewModel: AuthViewModel = viewModel()
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ProductNavigation(
-                        navController = navController,
-                        onLogout = { }
-                    )
+                NavHost(
+                    navController = navController,
+                    startDestination = "login"
+                ) {
+                    authNavigation(navController, authViewModel)
                 }
             }
         }
